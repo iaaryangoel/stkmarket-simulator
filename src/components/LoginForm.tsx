@@ -154,6 +154,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
         email,
         password,
         role,
+        secretKey
       });
       toast({
         title: "Registration Successful",

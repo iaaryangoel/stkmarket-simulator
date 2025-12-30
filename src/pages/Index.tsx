@@ -51,7 +51,7 @@ const Index = () => {
           <h1 className="text-2xl font-bold">Stock Market Simulator</h1>
           <div className="flex items-center gap-4">
             <span className="capitalize">{currentUser?.role}: {currentUser?.name}</span>
-            <Button onClick={handleLogout} variant="outline" className="text-white border-white hover:bg-white hover:text-slate-900">
+            <Button onClick={handleLogout} variant="outline" className="text-black border-white hover:bg-gray hover:text-gray-500">
               Logout
             </Button>
           </div>
