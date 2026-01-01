@@ -178,28 +178,43 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /*            SMALL REUSABLE VIEWS           */
   /* ────────────────────────────────────────── */
 
-  const MarketNews = () => (
-    <div className="space-y-4">
-      {news.map((n, idx) => (
-        <div
-          key={n._id}
-          className={`border p-3 rounded ${
-            idx === 0 ? "bg-yellow-100 animate-pulse" : "bg-white"
-          }`}
-        >
-          {idx === 0 && (
-            <span className="mr-2 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-              BREAKING NEWS
-            </span>
-          )}
-          <span className="font-semibold">{n.headline}</span>{" "}
-          <p className="text-xs text-muted-foreground mt-1">
-            {new Date(n.timestamp).toLocaleString()}
-          </p>
+  const MarketNews = () => {
+  if (news.length === 0) return <p>No news yet</p>;
+
+  const [breaking, ...others] = news;
+
+  return (
+    <div className="space-y-6">
+      {/* 🔥 Breaking News */}
+      <div className="border p-4 rounded bg-yellow-100 animate-pulse">
+        <div className="flex items-center justify-between">
+        <span className="font-semibold">{breaking.headline}</span>
+        <span className="ml-20 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+          BREAKING NEWS
+        </span>
+      </div>
+        <p className="text-xs text-muted-foreground mt-1">
+          {new Date(breaking.timestamp).toLocaleString()}
+        </p>
+      </div>
+
+      {/* 📰 Other News in Grid */}
+      {others.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {others.map((n) => (
+            <div key={n._id} className="border p-3 rounded bg-white">
+              <span className="font-semibold">{n.headline}</span>
+              <p className="text-xs text-muted-foreground mt-1">
+                {new Date(n.timestamp).toLocaleString()}
+              </p>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
+};
+
 
   const LiveLeaderboard = () => (
     <div className="overflow-x-auto">
@@ -265,7 +280,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /* ────────────────────────────────────────── */
   return (
     <Card className={`w-full ${
-    view === "shares"
+    view === "shares" || view === "news"
       ? "max-w-[80%]"
       : "max-w-xl"
   } bg-white/95 backdrop-blur-sm border-0 shadow-2xl`}>
