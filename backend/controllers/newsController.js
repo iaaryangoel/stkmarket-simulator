@@ -33,7 +33,7 @@ exports.createNews = async (req, res) => {
 
   const isPositive = sentiment === 'positive';
   const steps      = impact;             // 1..5
-  const intervalMs = 2 * 60_000;         // 2 minutes
+  const intervalMs = 0.5 * 60_000;         // 0.5 minutes
 
   for (const name of affectedShares) {
     const share = await Share.findOne({ name });

@@ -60,6 +60,10 @@ const AdminDashboard = () => {
     fetchAll();
 
     // Real-time updates
+    socket.on("share:add", (newShare) => {
+      setShares((prev) => [...prev, newShare]);
+    });
+
     socket.on("share:update", (updatedShare: Share) => {
       setShares((prev) =>
         prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
@@ -82,6 +86,7 @@ const AdminDashboard = () => {
     return () => {
       socket.off("share:update");
       socket.off("share:delete");
+      socket.off("share:add");
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -130,7 +135,7 @@ const AdminDashboard = () => {
         <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input
-              placeholder="symbol"
+              placeholder="Share Name"
               value={newShare.name}
               onChange={(e) =>
                 setNewShare({ ...newShare, name: e.target.value.toUpperCase() })
@@ -179,7 +184,7 @@ const AdminDashboard = () => {
                     </Button>
                     <Button
                       size="sm"
-                      variant="destructive"
+                      variant="outline"
                       onClick={() => handleDeleteShare(sh._id)}
                     >
                       ❌

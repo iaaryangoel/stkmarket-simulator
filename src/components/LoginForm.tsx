@@ -229,7 +229,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   );
 
   const ShareGrid = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
       {shares.map((s) => {
         const bid = (s.price * 0.98).toFixed(2);
         const ask = (s.price * 1.02).toFixed(2);
@@ -264,10 +264,14 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /*                 MAIN RETURN                */
   /* ────────────────────────────────────────── */
   return (
-    <Card className="w-full max-w-xl bg-white/95 backdrop-blur-sm border-0 shadow-2xl">
+    <Card className={`w-full ${
+    view === "shares"
+      ? "max-w-[80%]"
+      : "max-w-xl"
+  } bg-white/95 backdrop-blur-sm border-0 shadow-2xl`}>
       <CardHeader className="text-center space-y-3">
         <CardTitle className="text-2xl font-bold text-slate-900">
-          Stock Market Simulator
+          FBS Stock Market
         </CardTitle>
 
         {/* top nav buttons */}
@@ -289,7 +293,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
             size="sm"
             onClick={() => setView("auth")}
           >
-            ← Back to Login / Sign Up
+            ← Back to Home
           </Button>
         )}
       </CardHeader>
@@ -327,7 +331,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
 
             {/* signup */}
             <TabsContent value="signup">
-              <form onSubmit={handleSignup} className="space-y-4">
+              <form autoComplete="off" onSubmit={handleSignup} className="space-y-3">
                 <div>
                   <Label htmlFor="name">Full Name</Label>
                   <Input id="name" name="name" required />
@@ -350,6 +354,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
                     required
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="role">Role</Label>
                   <select
@@ -370,11 +375,15 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
                     id="secretKey"
                     name="secretKey"
                     placeholder="Enter secret key"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    onFocus={(e) => e.target.value = ""}
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Leave blank for Participant registration
                   </p>
-                </div>
+                </div></div>
                 <Button className="w-full bg-green-600 hover:bg-green-700">
                   Sign Up
                 </Button>

@@ -24,13 +24,13 @@ exports.getShares = async (_, res) => {
 /* -------------------- CREATE a share -------------------- */
 exports.createShare = async (req, res) => {
   const { name, price } = req.body;
-  if (!name || price <= 0) return res.status(400).json({ msg: 'Bad data' });
+  if (!name || price <= 0) return res.status(400).json({ msg: 'Invalid data' });
 
   if (await Share.findOne({ name }))
     return res.status(400).json({ msg: 'Share already exists' });
 
   const share = await Share.create({ name, price, change: 0 });
-  emitShare('update', share.toObject());
+  emitShare('add', share.toObject());
   res.status(201).json(share);
 };
 

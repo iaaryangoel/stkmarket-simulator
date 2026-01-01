@@ -6,6 +6,8 @@ const dotenv   = require('dotenv');
 const cors     = require('cors');
 const connectDB = require('./config/db');
 
+const Share = require('./models/Share');
+
 /* Controllers that need io */
 const { setIO: setShareIO } = require('./controllers/shareController');
 const { setIO: setNewsIO }  = require('./controllers/newsController');
@@ -41,6 +43,38 @@ const io     = new Server(server, {
 app.set('io', io);              // ✅ make io available via req.app.get('io')
 setShareIO(io);                 // ShareController socket setup
 setNewsIO(io);                  // NewsController socket setup
+
+/* ----------- AUTO MARKET FLUCTUATION ENGINE ----------- */
+
+const AUTO_FLUCTUATION_INTERVAL = 30000; // 30 sec
+
+setInterval(async () => {
+  try {
+    const shares = await Share.find();
+
+    for (let share of shares) {
+      // Skip shares locked due to news
+      if (share.lockedUntil && share.lockedUntil > Date.now()) continue;
+
+      // Small random fluctuation: -0.5% to +0.5%
+      const pctChange = (Math.random() * 1 - 0.5) / 100;
+
+      const oldPrice = share.price;
+      const newPrice = +(oldPrice * (1 + pctChange)).toFixed(2);
+
+      share.price = newPrice;
+      share.change = +(pctChange * 100).toFixed(2);
+
+      await share.save();
+
+      // 🔴 Emit real-time update to ALL dashboards
+      io.emit('share:update', share.toObject());
+    }
+  } catch (err) {
+    console.error('Auto fluctuation error:', err.message);
+  }
+}, AUTO_FLUCTUATION_INTERVAL);
+
 
 io.on('connection', (socket) => {
   console.log('⚡ client connected:', socket.id);
