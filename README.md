@@ -96,9 +96,7 @@ Backend:
   * News impact
   * Price fluctuations
 
-📺 Public Market View (Before Login)
-On the login/signup page
-* **Login / SignUp**
+📺 Public Market View (Without Login)
 * **Market News View**
 * **Live Leaderboard View**
 * **Share Market View**
@@ -113,4 +111,3 @@ B.Tech CSE | Full-Stack Developer
 IMP : **This Project was delivered to an actual client and was made client requirement specific."**
 -----------------------------------------------------------------------------------------------------
 
-tell me and I’ll refine it further 🔥
