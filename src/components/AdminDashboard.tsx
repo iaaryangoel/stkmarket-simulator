@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Newspaper } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
+import { toast } from "@/components/ui/use-toast";
 
 interface Share {
   _id: string;
@@ -62,6 +63,11 @@ const AdminDashboard = () => {
     // Real-time updates
     socket.on("share:add", (newShare) => {
       setShares((prev) => [...prev, newShare]);
+
+      toast({
+    title: "📈 New Share Added",
+    description: `${newShare.name} listed at ₹${newShare.price}`,
+  });
     });
 
     socket.on("share:update", (updatedShare: Share) => {
@@ -73,6 +79,17 @@ const AdminDashboard = () => {
     socket.on("share:delete", (id: string) => {
       setShares((prev) => prev.filter((s) => s._id !== id));
     });
+
+    socket.on("news:new", (news) => {
+  toast({
+    title: "📰 Breaking News",
+    description: news.headline,
+  });
+
+  // instantly reflect without refresh
+  setNews((prev) => [news, ...prev]);
+});
+
 
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -87,6 +104,7 @@ const AdminDashboard = () => {
       socket.off("share:update");
       socket.off("share:delete");
       socket.off("share:add");
+      socket.off("news:new");
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);

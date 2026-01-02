@@ -1,14 +1,17 @@
 // ParticipantDashboard.tsx
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axiosInstance";
-import {
-  Card, CardHeader, CardTitle, CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  TrendingUp, TrendingDown, DollarSign, PieChart, Newspaper,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  PieChart,
+  Newspaper,
 } from "lucide-react";
 import { io } from "socket.io-client";
+import { toast } from "@/components/ui/use-toast";
 
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
@@ -22,7 +25,7 @@ const ParticipantDashboard = ({ user }) => {
   const fetchAll = async () => {
     const [newsRes, userRes] = await Promise.all([
       axiosInstance.get("/news"),
-      axiosInstance.get(`/users/${user._id}`)
+      axiosInstance.get(`/users/${user._id}`),
     ]);
 
     setNews(newsRes.data);
@@ -40,22 +43,43 @@ const ParticipantDashboard = ({ user }) => {
 
     // Real-time share updates
     socket.on("share:update", (updatedShare) => {
-      setShares(prev =>
-        prev.some(s => s._id === updatedShare._id)
-          ? prev.map(s => (s._id === updatedShare._id ? updatedShare : s))
+      setShares((prev) =>
+        prev.some((s) => s._id === updatedShare._id)
+          ? prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
           : [...prev, updatedShare]
       );
     });
 
     socket.on("share:delete", (id) => {
-      setShares(prev => prev.filter(s => s._id !== id));
+      setShares((prev) => prev.filter((s) => s._id !== id));
     });
 
-    axiosInstance.get("/shares").then(res => setShares(res.data));
+    // 🔔 Toast: New share added
+    socket.on("share:add", (share) => {
+      toast({
+        title: "📈 New Share Added",
+        description: `${share.name} listed at ₹${share.price}`,
+      });
+    });
+
+    // 📰 Toast: Breaking news
+    socket.on("news:new", (news) => {
+      toast({
+        title: "📰 Breaking News",
+        description: news.headline,
+      });
+
+      // optional: prepend news instantly
+      setNews((prev) => [news, ...prev]);
+    });
+
+    axiosInstance.get("/shares").then((res) => setShares(res.data));
 
     return () => {
       socket.off("share:update");
       socket.off("share:delete");
+      socket.off("share:add");
+      socket.off("news:new");
     };
   }, [user]);
 
@@ -70,7 +94,7 @@ const ParticipantDashboard = ({ user }) => {
 
   const calculatePortfolioValue = () => {
     const holdingsValue = portfolio.holdings.reduce((total, holding) => {
-      const share = shares.find(s => s.name === holding.symbol);
+      const share = shares.find((s) => s.name === holding.symbol);
       return total + (share ? share.price * holding.quantity : 0);
     }, 0);
     return portfolio.balance + holdingsValue;
