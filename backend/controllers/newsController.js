@@ -8,9 +8,9 @@ exports.setIO = (io) => {
   ioInstance = io;
 };
 
-/* helper: push one ±1 % step & broadcast */
+/* helper: push one ±3 % step & broadcast */
 const stepMove = async (share, isPos) => {
-  const delta  = +(share.price * 0.01).toFixed(2);
+  const delta  = +(share.price * 0.03).toFixed(2);
   const signed = isPos ? delta : -delta;
 
   share.price  = +(share.price + signed).toFixed(2);
