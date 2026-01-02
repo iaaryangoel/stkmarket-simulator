@@ -47,6 +47,13 @@ const Index = () => {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-slate-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+          <img
+            src="/Transparent logo.png"
+            alt="Logo"
+            width={40}
+            height={40}
+            className="object-contain mr-[-60%]"
+          />
           <h1 className="text-xl sm:text-2xl font-semibold tracking-wide">
             FBS Stock Market
           </h1>
@@ -59,7 +66,7 @@ const Index = () => {
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-slate-900 transition"
+              className="border-white text-black hover:bg-white hover:text-blue-400 transition"
             >
               Logout
             </Button>
