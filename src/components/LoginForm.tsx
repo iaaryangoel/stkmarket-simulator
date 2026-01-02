@@ -2,28 +2,14 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import {
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 
 /* ────────────────────────────────────────────────────────── */
 /*                      helper types                          */
@@ -60,10 +46,10 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
 
   /* ========== ENV secrets for signup ======== */
   const EMPLOYEE_SECRET = import.meta.env.VITE_EMPLOYEE_SECRET;
-  const ADMIN_SECRET    = import.meta.env.VITE_ADMIN_SECRET;
+  const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET;
 
   /* ────────────────────────────────────────── */
-  /*         data fetch & socket updates        */
+  /*         datafetch&socketupdates        */
   /* ────────────────────────────────────────── */
   useEffect(() => {
     const fetchInitial = async () => {
@@ -89,8 +75,9 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
     socket.on("share:delete", (id: string) =>
       setShares((prev) => prev.filter((s) => s._id !== id))
     );
-    socket.on("news:new",   (n: NewsItem) =>
-      setNews((prev) => [n, ...prev])           // newest on top
+    socket.on(
+      "news:new",
+      (n: NewsItem) => setNews((prev) => [n, ...prev]) // newest on top
     );
 
     return () => {
@@ -101,7 +88,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   }, []);
 
   /* ────────────────────────────────────────── */
-  /*                 AUTH LOGIC                */
+  /*                 AUTHLOGIC                */
   /* ────────────────────────────────────────── */
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +141,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
         email,
         password,
         role,
-        secretKey
+        secretKey,
       });
       toast({
         title: "Registration Successful",
@@ -179,42 +166,41 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /* ────────────────────────────────────────── */
 
   const MarketNews = () => {
-  if (news.length === 0) return <p>No news yet</p>;
+    if (news.length === 0) return <p>No news yet</p>;
 
-  const [breaking, ...others] = news;
+    const [breaking, ...others] = news;
 
-  return (
-    <div className="space-y-6">
-      {/* 🔥 Breaking News */}
-      <div className="border p-4 rounded bg-yellow-100 animate-pulse">
-        <div className="flex items-center justify-between">
-        <span className="font-semibold">{breaking.headline}</span>
-        <span className="ml-20 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-          BREAKING NEWS
-        </span>
-      </div>
-        <p className="text-xs text-muted-foreground mt-1">
-          {new Date(breaking.timestamp).toLocaleString()}
-        </p>
-      </div>
-
-      {/* 📰 Other News in Grid */}
-      {others.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {others.map((n) => (
-            <div key={n._id} className="border p-3 rounded bg-white">
-              <span className="font-semibold">{n.headline}</span>
-              <p className="text-xs text-muted-foreground mt-1">
-                {new Date(n.timestamp).toLocaleString()}
-              </p>
-            </div>
-          ))}
+    return (
+      <div className="space-y-6">
+        {/* 🔥 Breaking News */}
+        <div className="border p-4 rounded bg-yellow-100 animate-pulse">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold">{breaking.headline}</span>
+            <span className="ml-20 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+              BREAKING NEWS
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            {new Date(breaking.timestamp).toLocaleString()}
+          </p>
         </div>
-      )}
-    </div>
-  );
-};
 
+        {/* 📰 Other News in Grid */}
+        {others.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {others.map((n) => (
+              <div key={n._id} className="border p-3 rounded bg-white">
+                <span className="font-semibold">{n.headline}</span>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {new Date(n.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const LiveLeaderboard = () => (
     <div className="overflow-x-auto">
@@ -279,144 +265,284 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /*                 MAIN RETURN                */
   /* ────────────────────────────────────────── */
   return (
-    <Card className={`w-full ${
-    view === "shares" || view === "news"
-      ? "max-w-[80%]"
-      : "max-w-xl"
-  } bg-white/95 backdrop-blur-sm border-0 shadow-2xl`}>
-      <CardHeader className="text-center space-y-3">
-        <CardTitle className="text-2xl font-bold text-slate-900">
-          FBS Stock Market
-        </CardTitle>
-
-        {/* top nav buttons */}
-        {view === "auth" ? (
-          <div className="flex justify-center gap-2">
-            <Button variant="outline" onClick={() => setView("news")}>
-              Market News
-            </Button>
-            <Button variant="outline" onClick={() => setView("leaderboard")}>
-              Live Leaderboard
-            </Button>
-            <Button variant="outline" onClick={() => setView("shares")}>
-              Share View
-            </Button>
+    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#F4F6FB] overflow-hidden">
+      {/* Curve Shape */}
+      <div className="hidden lg:flex relative justify-center items-center overflow-hidden rounded-r-[75px] bg-[#B09EE4]">
+        <div
+          className={`absolute inset-0 bg-[#261753] rounded-r-[75px] z-0 transition-all duration-700 ease-out ${"mr-[20px]"}`}
+        />
+        <div className="relative z-10 px-6 sm:px-8">
+          <img
+            src="/login-vector.svg"
+            alt="Signup Illustration"
+            width={400}
+            height={400}
+            className="max-w-full h-auto"
+          />
+        </div>
+        <div className="absolute top-4 sm:top-6 left-6 sm:left-10 flex items-center gap-2 sm:gap-3 z-10">
+          {/* Replace with your logo */}
+          <img
+            src="/Transparent logo.png"
+            alt="Logo"
+            width={65}
+            height={65}
+            className="object-contain"
+          />
+          <div className="flex flex-col leading-tight">
+            <span className="text-base sm:text-lg font-extrabold tracking-wider text-[#B09EE4]">
+              Finance Committee
+            </span>
+            <span className="text-sm sm:text-base font-semibold text-[#6d6a7c]">
+              FOSTIIMA Chapter
+            </span>
           </div>
-        ) : (
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setView("auth")}
-          >
-            ← Back to Home
-          </Button>
-        )}
-      </CardHeader>
+          <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse hover:scale-150 transition-transform duration-300"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-white/15 rounded-full animate-pulse delay-1000 hover:scale-150 transition-transform duration-300"></div>
+          <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse delay-500 hover:scale-150 transition-transform duration-300"></div>
+          <div className="absolute top-1/5 left-1/5 w-2.5 h-2.5 bg-white/20 rounded-full animate-pulse delay-200 hover:scale-150 transition-transform duration-300"></div>
+          <div className="absolute bottom-1/5 right-1/3 w-3.5 h-3.5 bg-white/15 rounded-full animate-pulse delay-1200 hover:scale-150 transition-transform duration-300"></div>
+        </div>
+        {/* Copyright */}
+        <p className="absolute bottom-6 left-6 text-xs text-white/50 z-10">
+          © 2026 Finance Committee – FOSTIIMA
+        </p>
+      </div>
 
-      <CardContent>
-        {/* ① Auth Forms */}
-        {view === "auth" && (
-          <Tabs value={authTab} onValueChange={setAuthTab}>
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
+      {/* ───────── RIGHT AUTH PANEL ───────── */}
+      <div className="flex items-center justify-center px-4">
+        <Card
+          className={`w-full ${
+            view === "shares" || view === "news" ? "max-w-[85%]" : "max-w-md"
+          }
+  bg-white
+  rounded-2xl
+  shadow-xl
+  border border-gray-200
+  transition-all duration-300`}
+        >
+          <CardHeader className="space-y-2 pb-6 text-left">
+            <CardTitle className="text-2xl font-extrabold tracking-tight text-slate-900">
+              FBS Stock Market
+            </CardTitle>
 
-            {/* login */}
-            <TabsContent value="login">
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" name="email" type="email" required />
-                </div>
-                <div>
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                  Login
+            {/* top nav buttons */}
+            {view === "auth" ? (
+              <div className="flex flex-wrap justify-center gap-3">
+                <Button
+                  variant="outline"
+                  className="rounded-full px-5 hover:bg-slate-100 transition"
+                  onClick={() => setView("news")}
+                >
+                  Market News
                 </Button>
-              </form>
-            </TabsContent>
 
-            {/* signup */}
-            <TabsContent value="signup">
-              <form autoComplete="off" onSubmit={handleSignup} className="space-y-3">
-                <div>
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" name="name" required />
-                </div>
-                <div>
-                  <Label htmlFor="signup-email">Email</Label>
-                  <Input
-                    id="signup-email"
-                    name="email"
-                    type="email"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="signup-password">Password</Label>
-                  <Input
-                    id="signup-password"
-                    name="password"
-                    type="password"
-                    required
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="role">Role</Label>
-                  <select
-                    name="role"
-                    className="w-full p-2 border rounded-md"
-                    required
+                <Button
+                  variant="outline"
+                  className="rounded-full px-5 hover:bg-slate-100 transition"
+                  onClick={() => setView("leaderboard")}
+                >
+                  Live Leaderboard
+                </Button>
+
+                <Button
+                  variant="outline"
+                  className="rounded-full px-5 hover:bg-slate-100 transition"
+                  onClick={() => setView("shares")}
+                >
+                  Share View
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setView("auth")}
+              >
+                ← Back to Home
+              </Button>
+            )}
+          </CardHeader>
+
+          <CardContent>
+            {/* ① Auth Forms */}
+            {view === "auth" && (
+              <Tabs value={authTab} onValueChange={setAuthTab}>
+                <TabsList className="grid w-full grid-cols-2 mb-6 rounded-lg bg-[#F1ECFF] p-1">
+                  <TabsTrigger
+                    value="login"
+                    className="rounded-md font-medium
+data-[state=active]:bg-white
+data-[state=active]:shadow
+data-[state=active]:text-indigo-600"
                   >
-                    <option value="participant">Participant</option>
-                    <option value="employee">Employee</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <div id="secret-key-container">
-                  <Label htmlFor="secretKey">
-                    Secret Key (Employee / Admin)
-                  </Label>
-                  <Input
-                    id="secretKey"
-                    name="secretKey"
-                    placeholder="Enter secret key"
+                    Login
+                  </TabsTrigger>
+
+                  <TabsTrigger
+                    value="signup"
+                    className="rounded-md font-medium
+data-[state=active]:bg-white
+data-[state=active]:shadow
+data-[state=active]:text-indigo-600"
+                  >
+                    Sign Up
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* login */}
+                <TabsContent value="login">
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <Label className="text-sm text-gray-600" htmlFor="email">
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        required
+                        className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        className="text-sm text-gray-600"
+                        htmlFor="password"
+                      >
+                        Password
+                      </Label>
+                      <Input
+                        id="password"
+                        name="password"
+                        type="password"
+                        required
+                        className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <Button
+                      className="w-full h-12 bg-[#6C63FF] hover:bg-[#5A52E0]
+rounded-lg font-semibold transition"
+                    >
+                      Login
+                    </Button>
+                  </form>
+                </TabsContent>
+
+                {/* signup */}
+                <TabsContent value="signup">
+                  <form
                     autoComplete="off"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    onFocus={(e) => e.target.value = ""}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Leave blank for Participant registration
-                  </p>
-                </div></div>
-                <Button className="w-full bg-green-600 hover:bg-green-700">
-                  Sign Up
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-        )}
+                    onSubmit={handleSignup}
+                    className="space-y-3"
+                  >
+                    <div>
+                      <Label className="text-sm text-gray-600" htmlFor="name">
+                        Full Name
+                      </Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        required
+                        className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        className="text-sm text-gray-600"
+                        htmlFor="signup-email"
+                      >
+                        Email
+                      </Label>
+                      <Input
+                        id="signup-email"
+                        name="email"
+                        type="email"
+                        required
+                        className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <Label
+                        className="text-sm text-gray-600"
+                        htmlFor="signup-password"
+                      >
+                        Password
+                      </Label>
+                      <Input
+                        id="signup-password"
+                        name="password"
+                        type="password"
+                        required
+                        className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm text-gray-600" htmlFor="role">
+                          Role
+                        </Label>
+                        <select
+                          name="role"
+                          className="w-full h-12 rounded-lg border-gray-300 bg-[#F8F6FF]"
+                          required
+                        >
+                          <option value="participant">Participant</option>
+                          <option value="employee">Employee</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+                      <div id="secret-key-container">
+                        <Label
+                          className="text-sm text-gray-600"
+                          htmlFor="secretKey"
+                        >
+                          Secret Key (Employee / Admin)
+                        </Label>
+                        <Input
+                          id="secretKey"
+                          name="secretKey"
+                          placeholder="Enter secret key"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          spellCheck={false}
+                          onFocus={(e) => (e.target.value = "")}
+                          className="h-12 rounded-lg bg-[#F8F6FF] border-gray-300
+  focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Leave blank for Participant registration
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      className="w-full h-12 bg-[#6C63FF] hover:bg-[#5A52E0]
+rounded-lg font-semibold transition"
+                    >
+                      Sign Up
+                    </Button>
+                  </form>
+                </TabsContent>
+              </Tabs>
+            )}
 
-        {/* ② Market News */}
-        {view === "news" && <MarketNews />}
+            {/* ② Market News */}
+            {view === "news" && <MarketNews />}
 
-        {/* ③ Leaderboard */}
-        {view === "leaderboard" && <LiveLeaderboard />}
+            {/* ③ Leaderboard */}
+            {view === "leaderboard" && <LiveLeaderboard />}
 
-        {/* ④ Shares grid */}
-        {view === "shares" && <ShareGrid />}
-      </CardContent>
-    </Card>
+            {/* ④ Shares grid */}
+            {view === "shares" && <ShareGrid />}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };
 
