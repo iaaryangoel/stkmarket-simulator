@@ -66,11 +66,18 @@ const EmployeeDashboard = () => {
       });
     });
 
+    socket.on("market:status", ({ running }) => {
+      toast({
+        title: running ? "📊 Market Resumed" : "⛔ Market Paused",
+      });
+    });
+
     return () => {
       socket.off("share:update");
       socket.off("share:delete");
       socket.off("share:add");
       socket.off("user:update");
+      socket.off("market:status");
     };
   }, []);
 

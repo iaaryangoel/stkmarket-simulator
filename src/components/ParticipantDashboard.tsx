@@ -62,6 +62,12 @@ const ParticipantDashboard = ({ user }) => {
       });
     });
 
+    socket.on("market:status", ({ running }) => {
+      toast({
+        title: running ? "📊 Market Resumed" : "⛔ Market Paused",
+      });
+    });
+
     // 📰 Toast: Breaking news
     socket.on("news:new", (news) => {
       toast({
@@ -80,6 +86,7 @@ const ParticipantDashboard = ({ user }) => {
       socket.off("share:delete");
       socket.off("share:add");
       socket.off("news:new");
+      socket.off("market:status");
     };
   }, [user]);
 

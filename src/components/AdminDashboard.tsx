@@ -34,11 +34,18 @@ const AdminDashboard = () => {
   });
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [marketRunning, setMarketRunning] = useState(true);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNews = async () => {
     const res = await axiosInstance.get("/news");
     setNews(res.data);
+  };
+
+  const toggleMarket = async () => {
+    const res = await axiosInstance.post("/market/toggle");
+    setMarketRunning(res.data.running);
   };
 
   const fetchLeaderboard = async () => {
@@ -60,14 +67,29 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchAll();
 
+    axiosInstance.get("/market/status").then((res) => {
+      setMarketRunning(res.data.running);
+    });
+
+    socket.on("market:status", ({ running }) => {
+      setMarketRunning(running);
+
+      toast({
+        title: running ? "📊 Market Resumed" : "⛔ Market Paused",
+        description: running
+          ? "Market fluctuations are active."
+          : "Market fluctuations are haulted.",
+      });
+    });
+
     // Real-time updates
     socket.on("share:add", (newShare) => {
       setShares((prev) => [...prev, newShare]);
 
       toast({
-    title: "📈 New Share Added",
-    description: `${newShare.name} listed at ₹${newShare.price}`,
-  });
+        title: "📈 New Share Added",
+        description: `${newShare.name} listed at ₹${newShare.price}`,
+      });
     });
 
     socket.on("share:update", (updatedShare: Share) => {
@@ -81,15 +103,14 @@ const AdminDashboard = () => {
     });
 
     socket.on("news:new", (news) => {
-  toast({
-    title: "📰 Breaking News",
-    description: news.headline,
-  });
+      toast({
+        title: "📰 Breaking News",
+        description: news.headline,
+      });
 
-  // instantly reflect without refresh
-  setNews((prev) => [news, ...prev]);
-});
-
+      // instantly reflect without refresh
+      setNews((prev) => [news, ...prev]);
+    });
 
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -105,6 +126,7 @@ const AdminDashboard = () => {
       socket.off("share:delete");
       socket.off("share:add");
       socket.off("news:new");
+      socket.off("market:status");
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
@@ -147,9 +169,21 @@ const AdminDashboard = () => {
     <div className="space-y-6">
       {/* ───────── Share Management ───────── */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Manage Shares</CardTitle>
+
+          <Button
+            onClick={toggleMarket}
+            className={
+              marketRunning
+                ? "bg-green-600 hover:bg-green-700 text-white"
+                : "bg-red-600 hover:bg-red-700 text-white"
+            }
+          >
+            {marketRunning ? "Market ON" : "Market OFF"}
+          </Button>
         </CardHeader>
+
         <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input

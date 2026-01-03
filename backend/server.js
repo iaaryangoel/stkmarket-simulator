@@ -31,6 +31,7 @@ app.use('/api/users',  require('./routes/userRoutes'));
 app.use('/api/shares', require('./routes/shareRoutes'));
 app.use('/api/news',   require('./routes/newsRoutes'));
 app.use('/api/trade',  require('./routes/tradeRoutes'));
+app.use("/api/market", require("./routes/marketRoutes"));
 
 app.get('/', (_, res) => res.send('API is running...'));
 
@@ -47,9 +48,11 @@ setNewsIO(io);                  // NewsController socket setup
 /* ----------- AUTO MARKET FLUCTUATION ENGINE ----------- */
 
 const AUTO_FLUCTUATION_INTERVAL = 30000; // 30 sec
+global.marketRunning = true;
 
 setInterval(async () => {
   try {
+    if (!global.marketRunning) return;
     const shares = await Share.find();
 
     for (let share of shares) {
