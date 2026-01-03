@@ -141,15 +141,15 @@ const EmployeeDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Market Overview */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl border bg-white shadow-sm">
+        <CardHeader className="border-b bg-slate-50">
           <CardTitle>Market Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="border-b">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr className="border-b hover:bg-slate-50 transition">
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-right">Price</th>
                   <th className="p-2 text-right">Change %</th>
@@ -157,9 +157,9 @@ const EmployeeDashboard = () => {
               </thead>
               <tbody>
                 {shares.map((s) => (
-                  <tr key={s._id} className="border-b">
+                  <tr key={s._id} className="border-b hover:bg-slate-50 transition">
                     <td className="p-2">{s.name}</td>
-                    <td className="p-2 text-right">₹{s.price.toFixed(2)}</td>
+                    <td className="p-2 text-right font-medium">₹{s.price.toFixed(2)}</td>
                     <td
                       className={`p-2 text-right ${
                         s.change >= 0 ? "text-green-600" : "text-red-600"
@@ -183,17 +183,17 @@ const EmployeeDashboard = () => {
       </Card>
 
       {/* Trading Interface */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl border bg-white shadow-sm">
+        <CardHeader className="border-b bg-slate-50">
           <CardTitle>Trading Interface</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="direct">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="direct" className="flex items-center gap-2">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-xl">
+              <TabsTrigger value="direct" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
                 <Users className="h-4 w-4" /> Trade w/ Exchange
               </TabsTrigger>
-              <TabsTrigger value="p2p" className="flex items-center gap-2">
+              <TabsTrigger value="p2p" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
                 <ArrowLeftRight className="h-4 w-4" /> P2P Trade
               </TabsTrigger>
             </TabsList>
@@ -207,7 +207,7 @@ const EmployeeDashboard = () => {
                     <Label>Participant</Label>
                     <select
                       name="participantId"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="">Select</option>
@@ -223,7 +223,7 @@ const EmployeeDashboard = () => {
                     <Label>Share</Label>
                     <select
                       name="shareSymbol"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="">Select</option>
@@ -244,7 +244,7 @@ const EmployeeDashboard = () => {
                     <Label>Action</Label>
                     <select
                       name="action"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="buy">Buy from Market</option>
@@ -252,7 +252,7 @@ const EmployeeDashboard = () => {
                     </select>
                   </div>
                 </div>
-                <Button className="w-full">Execute Trade</Button>
+                <Button className="w-full h-11 text-base">Execute Trade</Button>
               </form>
             </TabsContent>
 
@@ -265,7 +265,7 @@ const EmployeeDashboard = () => {
                     <Label>Buyer</Label>
                     <select
                       name="buyerParticipantId"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="">Select buyer</option>
@@ -281,7 +281,7 @@ const EmployeeDashboard = () => {
                     <Label>Seller</Label>
                     <select
                       name="sellerParticipantId"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="">Select seller</option>
@@ -297,7 +297,7 @@ const EmployeeDashboard = () => {
                     <Label>Share</Label>
                     <select
                       name="p2pShareSymbol"
-                      className="w-full border p-2 rounded"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                       required
                     >
                       <option value="">Select</option>
@@ -325,7 +325,7 @@ const EmployeeDashboard = () => {
                     />
                   </div>
                 </div>
-                <Button className="w-full">Execute P2P</Button>
+                <Button className="w-full h-11 text-base">Execute P2P</Button>
               </form>
             </TabsContent>
           </Tabs>
@@ -333,15 +333,15 @@ const EmployeeDashboard = () => {
       </Card>
 
       {/* Active Participants */}
-      <Card>
-        <CardHeader>
+      <Card className="rounded-2xl border bg-white shadow-sm">
+        <CardHeader className="border-b bg-slate-50">
           <CardTitle>Active Participants</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead>
-                <tr className="border-b">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr className="border-b hover:bg-slate-50 transition">
                   <th className="p-2 text-left">PID</th>
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-right">Balance</th>

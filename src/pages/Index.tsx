@@ -50,9 +50,9 @@ const Index = () => {
           <img
             src="/Transparent logo.png"
             alt="Logo"
-            width={40}
-            height={40}
-            className="object-contain mr-[-60%]"
+            width={55}
+            height={55}
+            className="object-contain mr-[-62%]"
           />
           <h1 className="text-xl sm:text-2xl font-semibold tracking-wide">
             FBS Stock Market
