@@ -166,100 +166,209 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /* ────────────────────────────────────────── */
 
   const MarketNews = () => {
-    if (news.length === 0) return <p>No news yet</p>;
-
-    const [breaking, ...others] = news;
-
+  if (news.length === 0) {
     return (
-      <div className="space-y-6">
-        {/* 🔥 Breaking News */}
-        <div className="border p-4 rounded bg-yellow-100 animate-pulse">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">{breaking.headline}</span>
-            <span className="ml-20 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-              BREAKING NEWS
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mt-1">
-            {new Date(breaking.timestamp).toLocaleString()}
-          </p>
-        </div>
-
-        {/* 📰 Other News in Grid */}
-        {others.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {others.map((n) => (
-              <div key={n._id} className="border p-3 rounded bg-white">
-                <span className="font-semibold">{n.headline}</span>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {new Date(n.timestamp).toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className="rounded-xl border bg-white p-4 text-center text-sm text-slate-500">
+        No market news available yet 📰
       </div>
     );
-  };
+  }
+
+  const [breaking, ...others] = news;
+
+  return (
+    <div className="space-y-6">
+      {/* 🔥 Breaking News */}
+      <div className="relative rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-white p-5 shadow-sm">
+        <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+          🔥 BREAKING
+        </span>
+
+        <h3 className="text-base font-semibold text-slate-800 pr-24">
+          {breaking.headline}
+        </h3>
+
+        <p className="mt-2 text-xs text-slate-500">
+          {new Date(breaking.timestamp).toLocaleString()}
+        </p>
+      </div>
+
+      {/* 📰 Other News */}
+      {others.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {others.map((n) => (
+            <div
+              key={n._id}
+              className="rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md"
+            >
+              <h4 className="text-sm font-medium text-slate-800 line-clamp-2">
+                {n.headline}
+              </h4>
+
+              <p className="mt-2 text-xs text-slate-500">
+                {new Date(n.timestamp).toLocaleString()}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
   const LiveLeaderboard = () => (
+  <div className="rounded-2xl border bg-white shadow-md overflow-hidden">
+    {/* Header */}
+    <div className="px-5 py-4 border-b bg-gradient-to-r from-slate-50 to-white">
+      <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+        🏆 Live Leaderboard
+      </h2>
+      <p className="text-xs text-slate-500">
+        Rankings based on total net worth
+      </p>
+    </div>
+
+    {/* Table */}
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b">
-            <th className="p-2 text-left">Rank</th>
-            <th className="p-2 text-left">Participant</th>
-            <th className="p-2 text-right">Net Worth</th>
+      <table className="w-full text-sm">
+        <thead className="bg-slate-50 sticky top-0 z-10">
+          <tr className="text-slate-600">
+            <th className="px-5 py-3 text-left font-medium whitespace-nowrap">
+              Rank
+            </th>
+            <th className="px-5 py-3 text-left font-medium">
+              Participant
+            </th>
+            <th className="px-5 py-3 text-right font-medium whitespace-nowrap">
+              Net Worth
+            </th>
           </tr>
         </thead>
-        <tbody>
-          {leaderboard.map((p, i) => (
-            <tr key={p.participantId} className="border-b">
-              <td className="p-2">{i + 1}</td>
-              <td className="p-2">
-                {p.name} ({p.participantId})
+
+        <tbody className="divide-y">
+          {leaderboard.length === 0 && (
+            <tr>
+              <td
+                colSpan={3}
+                className="p-6 text-center text-slate-500"
+              >
+                No leaderboard data available yet 🚀
               </td>
-              <td className="p-2 text-right">
-                ₹{p.totalNetWorth.toLocaleString()}
+            </tr>
+          )}
+
+          {leaderboard.map((p, i) => (
+            <tr
+              key={p.participantId}
+              className={`transition-colors hover:bg-slate-50 ${
+                i < 3 ? "bg-slate-50/60" : ""
+              }`}
+            >
+              {/* Rank */}
+              <td className="px-5 py-4">
+                <span
+                  className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold
+                    ${
+                      i === 0
+                        ? "bg-yellow-200 text-yellow-800 shadow-sm"
+                        : i === 1
+                        ? "bg-slate-200 text-slate-700"
+                        : i === 2
+                        ? "bg-amber-100 text-amber-700"
+                        : "bg-slate-100 text-slate-600"
+                    }`}
+                >
+                  {i + 1}
+                </span>
+              </td>
+
+              {/* Participant */}
+              <td className="px-5 py-4">
+                <div className="font-medium text-slate-800 truncate max-w-[220px]">
+                  {p.name}
+                </div>
+                <div className="text-xs text-slate-500">
+                  ID: {p.participantId}
+                </div>
+              </td>
+
+              {/* Net Worth */}
+              <td className="px-5 py-4 text-right">
+                <div className="font-semibold tabular-nums text-slate-900">
+                  ₹{p.totalNetWorth.toLocaleString()}
+                </div>
+                <div className="text-xs text-slate-500">
+                  Net Worth
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
-  );
+  </div>
+);
 
-  const ShareGrid = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      {shares.map((s) => {
-        const bid = (s.price * 0.98).toFixed(2);
-        const ask = (s.price * 1.02).toFixed(2);
-        return (
-          <div
-            key={s._id}
-            className={`rounded p-4 shadow text-white ${
-              s.change >= 0 ? "bg-green-600" : "bg-red-600"
-            }`}
-          >
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold">{s.name}</span>
-              <span className="text-lg">₹{s.price.toFixed(2)}</span>
+
+ const ShareGrid = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    {shares.map((s) => {
+      const bid = (s.price * 0.98).toFixed(2);
+      const ask = (s.price * 1.02).toFixed(2);
+      const positive = s.change >= 0;
+
+      return (
+        <div
+          key={s._id}
+          className={`rounded-2xl border p-4 overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+            positive
+              ? "bg-green-50 border-green-200"
+              : "bg-red-50 border-red-200"
+          }`}
+        >
+          {/* Header */}
+          <div className="flex justify-between items-start gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-700 truncate">
+                {s.name}
+              </p>
+              <p className="text-xs text-slate-500">Market Price</p>
             </div>
-            <div className="mt-2 text-sm grid grid-cols-2 gap-1">
-              <div>
-                <span className="block font-semibold">Bid</span>
-                <span>₹{bid}</span>
-              </div>
-              <div>
-                <span className="block font-semibold">Ask</span>
-                <span>₹{ask}</span>
-              </div>
+
+            <p
+              className={`text-lg font-bold leading-tight whitespace-nowrap ${
+                positive ? "text-green-700" : "text-red-700"
+              }`}
+            >
+              ₹{s.price.toFixed(2)}
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div className="h-px bg-slate-200 my-3" />
+
+          {/* Bid / Ask */}
+          <div className="flex gap-2">
+            <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
+              <p className="text-[11px] text-slate-500">Bid</p>
+              <p className="text-sm font-semibold text-slate-800 truncate">
+                ₹{bid}
+              </p>
+            </div>
+
+            <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
+              <p className="text-[11px] text-slate-500">Ask</p>
+              <p className="text-sm font-semibold text-slate-800 truncate">
+                ₹{ask}
+              </p>
             </div>
           </div>
-        );
-      })}
-    </div>
-  );
+        </div>
+      );
+    })}
+  </div>
+);
+
 
   /* ────────────────────────────────────────── */
   /*                 MAIN RETURN                */
