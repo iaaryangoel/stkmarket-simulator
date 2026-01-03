@@ -166,7 +166,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-6xl mx-auto space-y-8">
       {/* ───────── Share Management ───────── */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -176,11 +176,11 @@ const AdminDashboard = () => {
             onClick={toggleMarket}
             className={
               marketRunning
-                ? "bg-green-600 hover:bg-green-700 text-white"
+                ? "bg-green-600 hover:bg-green-700 text-white animate-pulse"
                 : "bg-red-600 hover:bg-red-700 text-white"
             }
           >
-            {marketRunning ? "Market ON" : "Market OFF"}
+            {marketRunning ? "● Market ON" : "● Market OFF"}
           </Button>
         </CardHeader>
 
@@ -211,13 +211,13 @@ const AdminDashboard = () => {
               return (
                 <li
                   key={sh._id}
-                  className="border p-2 rounded flex items-center justify-between gap-4"
+                  className="border rounded-lg px-4 py-3 flex justify-between items-center hover:bg-slate-50 transition"
                 >
                   <div className="flex-1">
                     <strong>{sh.name}</strong> : ₹{sh.price.toFixed(2)}
                     {locked && <Badge className="ml-2">locked</Badge>}
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -256,6 +256,7 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Textarea
+            className="min-h-[80px]"
             placeholder="Headline"
             value={newNews.headline}
             onChange={(e) =>
@@ -263,7 +264,7 @@ const AdminDashboard = () => {
             }
           />
 
-          <div className="flex flex-wrap gap-2 items-start">
+          <div className="flex flex-wrap gap-2">
             {/* multiselect */}
             <div className="relative min-w-[200px]" ref={dropdownRef}>
               <Button
@@ -276,7 +277,7 @@ const AdminDashboard = () => {
                   : "Select Shares"}
               </Button>
               {dropdownOpen && (
-                <div className="absolute z-10 w-full bg-white border rounded shadow p-2 max-h-60 overflow-y-auto">
+                <div className="absolute z-10 bg-white border rounded shadow p-2 w-full">
                   {shares.map((sh) => (
                     <label key={sh._id} className="flex gap-2 py-1">
                       <input
@@ -309,7 +310,7 @@ const AdminDashboard = () => {
             />
 
             <select
-              className="border rounded px-2 py-1"
+              className="border rounded px-3 py-2"
               value={newNews.sentiment}
               onChange={(e) =>
                 setNewNews({ ...newNews, sentiment: e.target.value })
@@ -332,10 +333,15 @@ const AdminDashboard = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-4">
+          <ul className="space-y-3">
             {news.map((n) => (
-              <li key={n._id} className="border p-3 rounded">
-                <div className="flex justify-between items-center mb-1">
+              <li key={n._id} className="relative border rounded-lg p-4">
+                <div
+                  className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${
+                    n.sentiment === "positive" ? "bg-green-500" : "bg-red-500"
+                  }`}
+                />
+                <div className="flex justify-between">
                   <h4 className="font-semibold">{n.headline}</h4>
                   <Button
                     size="sm"
@@ -357,7 +363,7 @@ const AdminDashboard = () => {
                 >
                   {n.sentiment}
                 </Badge>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-500 mt-1">
                   {new Date(n.timestamp).toLocaleString()}
                 </p>
               </li>
@@ -367,32 +373,70 @@ const AdminDashboard = () => {
       </Card>
 
       {/* ───────── Leaderboard ───────── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>🏆 Live Leaderboard (Top 5)</CardTitle>
+      <Card className="rounded-2xl border bg-white shadow-sm">
+        <CardHeader className="border-b bg-slate-50">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            🏆 Live Leaderboard (Top 5)
+          </CardTitle>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="p-0">
           {leaderboard.length === 0 ? (
-            <p className="text-gray-500">No data</p>
+            <p className="p-4 text-sm text-slate-500">No data available</p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="p-2 text-left">Rank</th>
-                    <th className="p-2 text-left">Participant</th>
-                    <th className="p-2 text-right">Net Worth</th>
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-slate-600">
+                  <tr>
+                    <th className="px-5 py-3 text-left font-medium">Rank</th>
+                    <th className="px-5 py-3 text-left font-medium">
+                      Participant
+                    </th>
+                    <th className="px-5 py-3 text-right font-medium">
+                      Net Worth
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+
+                <tbody className="divide-y">
                   {leaderboard.map((p, i) => (
-                    <tr key={p.participantId} className="border-b">
-                      <td className="p-2">{i + 1}</td>
-                      <td className="p-2">
-                        {p.name} ({p.participantId})
+                    <tr
+                      key={p.participantId}
+                      className="hover:bg-slate-50 transition"
+                    >
+                      {/* Rank */}
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex w-8 h-8 items-center justify-center rounded-full text-xs font-bold
+                      ${
+                        i === 0
+                          ? "bg-yellow-100 text-yellow-700"
+                          : i === 1
+                          ? "bg-slate-200 text-slate-700"
+                          : i === 2
+                          ? "bg-amber-100 text-amber-700"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                        >
+                          {i + 1}
+                        </span>
                       </td>
-                      <td className="p-2 text-right">
-                        ₹{p.totalNetWorth.toLocaleString()}
+
+                      {/* Participant */}
+                      <td className="px-5 py-4">
+                        <div className="font-medium text-slate-800 truncate max-w-[220px]">
+                          {p.name}
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          ID: {p.participantId}
+                        </div>
+                      </td>
+
+                      {/* Net Worth */}
+                      <td className="px-5 py-4 text-right">
+                        <div className="font-semibold text-slate-800">
+                          ₹{p.totalNetWorth.toLocaleString()}
+                        </div>
                       </td>
                     </tr>
                   ))}
