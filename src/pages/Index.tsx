@@ -54,7 +54,7 @@ const Index = () => {
             height={55}
             className="object-contain mr-[-62%]"
           />
-          <h1 className="text-xl sm:text-2xl font-semibold tracking-wide">
+          <h1 className="ml-[3%] text-xl sm:text-2xl font-semibold tracking-wide">
             FBS Stock Market
           </h1>
 

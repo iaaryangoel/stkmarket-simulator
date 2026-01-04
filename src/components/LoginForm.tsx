@@ -179,7 +179,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
     return (
       <div className="space-y-6">
         {/* 🔥 Breaking News */}
-        <div className="relative rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-white p-5 shadow-sm">
+        <div className="animate-pulse relative rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-yellow-100 p-5 shadow-sm">
           <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
             🔥 BREAKING
           </span>
@@ -324,7 +324,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
                 <p className="text-sm font-semibold text-slate-700 truncate">
                   {s.name}
                 </p>
-                <p className="text-xs text-slate-500">Market Price</p>
+                {/* <p className="text-xs text-slate-500">Market Price</p> */}
               </div>
 
               <p
