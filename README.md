@@ -36,6 +36,7 @@ Backend:
 ---------------
 👑 Admin
 * Add / Delete shares
+* Hault / Resume market fluctuations button
 * Post market news
 * Control price movement
 * View live leaderboard
