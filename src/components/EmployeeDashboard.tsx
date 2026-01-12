@@ -8,12 +8,35 @@ import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown, Users, ArrowLeftRight } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
+import { AxiosError } from "axios";
+
+interface Share {
+  _id: string;
+  name: string;
+  price: number;
+  change: number;
+}
+
+interface Holding {
+  shareSymbol: string;
+  quantity: number;
+}
+
+interface User {
+  _id: string;
+  name: string;
+  role: "admin" | "employee" | "participant";
+  participantId: string;
+  balance: number;
+  holdings?: Holding[];
+}
 
 const socket = io(import.meta.env.VITE_SOCKET_URL); // adjust for production
 
 const EmployeeDashboard = () => {
-  const [shares, setShares] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
+  const [shares, setShares] = useState<Share[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+
   const { toast } = useToast();
 
   /* --- initial load + realtime listeners ---------------------------- */
@@ -58,10 +81,10 @@ const EmployeeDashboard = () => {
     });
 
     /* user / participant updates -------------------------------------- */
-    socket.on("user:update", (changedUsers) => {
+    socket.on("user:update", (changedUsers: User[]) => {
       setUsers((prev) => {
         const map = new Map(prev.map((u) => [u.participantId, u]));
-        changedUsers.forEach((u: any) => map.set(u.participantId, u));
+        changedUsers.forEach((u: User) => map.set(u.participantId, u));
         return Array.from(map.values());
       });
     });
@@ -100,12 +123,20 @@ const EmployeeDashboard = () => {
       const res = await axiosInstance.post("/trade", payload);
       toast({ title: "Trade Executed", description: res.data.message });
       // local state will update via socket `user:update`
-    } catch (err: any) {
-      toast({
-        title: "Trade Failed",
-        description: err.response?.data?.message || "Unknown error",
-        variant: "destructive",
-      });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast({
+          title: "Trade Failed",
+          description: err.response?.data?.message || "Unknown error",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Trade Failed",
+          description: "Unexpected error occurred",
+          variant: "destructive",
+        });
+      }
     }
     formE1.reset();
   };
@@ -127,12 +158,20 @@ const EmployeeDashboard = () => {
       const res = await axiosInstance.post("/trade", payload);
       toast({ title: "P2P Executed", description: res.data.message });
       // user changes come via socket
-    } catch (err: any) {
-      toast({
-        title: "Trade Failed",
-        description: err.response?.data?.message || "Unknown error",
-        variant: "destructive",
-      });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast({
+          title: "Trade Failed",
+          description: err.response?.data?.message || "Unknown error",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Trade Failed",
+          description: "Unexpected error occurred",
+          variant: "destructive",
+        });
+      }
     }
     formE1.reset();
   };
@@ -152,14 +191,19 @@ const EmployeeDashboard = () => {
                 <tr className="border-b hover:bg-slate-50 transition">
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-right">Price</th>
-                  <th className="p-2 text-right">Change %</th>
+                  <th className="p-2 text-right">Change %</th>
                 </tr>
               </thead>
               <tbody>
                 {shares.map((s) => (
-                  <tr key={s._id} className="border-b hover:bg-slate-50 transition">
+                  <tr
+                    key={s._id}
+                    className="border-b hover:bg-slate-50 transition"
+                  >
                     <td className="p-2">{s.name}</td>
-                    <td className="p-2 text-right font-medium">₹{s.price.toFixed(2)}</td>
+                    <td className="p-2 text-right font-medium">
+                      ₹{s.price.toFixed(2)}
+                    </td>
                     <td
                       className={`p-2 text-right ${
                         s.change >= 0 ? "text-green-600" : "text-red-600"
@@ -190,10 +234,16 @@ const EmployeeDashboard = () => {
         <CardContent>
           <Tabs defaultValue="direct">
             <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-xl">
-              <TabsTrigger value="direct" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                <Users className="h-4 w-4" /> Trade w/ Exchange
+              <TabsTrigger
+                value="direct"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
+                <Users className="h-4 w-4" /> Trade w/ Exchange
               </TabsTrigger>
-              <TabsTrigger value="p2p" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <TabsTrigger
+                value="p2p"
+                className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm"
+              >
                 <ArrowLeftRight className="h-4 w-4" /> P2P Trade
               </TabsTrigger>
             </TabsList>
@@ -229,7 +279,7 @@ const EmployeeDashboard = () => {
                       <option value="">Select</option>
                       {shares.map((s) => (
                         <option key={s._id} value={s.name}>
-                          {s.name} – ₹{s.price}
+                          {s.name} - ₹{s.price}
                         </option>
                       ))}
                     </select>
@@ -325,7 +375,7 @@ const EmployeeDashboard = () => {
                     />
                   </div>
                 </div>
-                <Button className="w-full h-11 text-base">Execute P2P</Button>
+                <Button className="w-full h-11 text-base">Execute P2P</Button>
               </form>
             </TabsContent>
           </Tabs>

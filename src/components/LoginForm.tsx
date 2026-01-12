@@ -10,9 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { AxiosError } from "axios";
 
 /* ────────────────────────────────────────────────────────── */
-/*                      helper types                          */
+/*                      helper types                          */
 interface Share {
   _id: string;
   name: string;
@@ -25,11 +26,23 @@ interface NewsItem {
   timestamp: string;
   sentiment: "positive" | "negative";
 }
+interface AuthUser {
+  _id: string;
+  name: string;
+  role: "participant" | "employee" | "admin";
+  participantId?: string;
+}
+interface LeaderboardEntry {
+  participantId: string;
+  name: string;
+  totalNetWorth: number;
+}
+
 /* ────────────────────────────────────────────────────────── */
 
 const socket = io(import.meta.env.VITE_SOCKET_URL);
 
-const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
+const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   /* ------------ auth form state ------------ */
   const [authTab, setAuthTab] = useState<"login" | "signup">("login");
 
@@ -40,11 +53,11 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   /* ------------ data for the three views --- */
   const [news, setNews] = useState<NewsItem[]>([]);
   const [shares, setShares] = useState<Share[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
 
   const { toast } = useToast();
 
-  /* ========== ENV secrets for signup ======== */
+  /* ========== ENV secrets for signup ======== */
   const EMPLOYEE_SECRET = import.meta.env.VITE_EMPLOYEE_SECRET;
   const ADMIN_SECRET = import.meta.env.VITE_ADMIN_SECRET;
 
@@ -102,12 +115,20 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
         title: "Login Successful",
         description: `Welcome back, ${res.data.name}!`,
       });
-    } catch (err: any) {
-      toast({
-        title: "Login Failed",
-        description: err.response?.data?.message || "Something went wrong",
-        variant: "destructive",
-      });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast({
+          title: "Login Failed",
+          description: err.response?.data?.message || "Something went wrong",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "Unexpected error occurred",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -152,17 +173,25 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
         }`,
       });
       setAuthTab("login");
-    } catch (err: any) {
-      toast({
-        title: "Registration Failed",
-        description: err.response?.data?.message || "Something went wrong",
-        variant: "destructive",
-      });
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        toast({
+          title: "Registration Failed",
+          description: err.response?.data?.message || "Something went wrong",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: "Unexpected error occurred",
+          variant: "destructive",
+        });
+      }
     }
   };
 
   /* ────────────────────────────────────────── */
-  /*            SMALL REUSABLE VIEWS           */
+  /*            SMALL REUSABLE VIEWS           */
   /* ────────────────────────────────────────── */
 
   const MarketNews = () => {
@@ -362,7 +391,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
   );
 
   /* ────────────────────────────────────────── */
-  /*                 MAIN RETURN                */
+  /*                 MAIN RETURN                */
   /* ────────────────────────────────────────── */
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#F4F6FB] overflow-hidden">
@@ -483,9 +512,12 @@ const LoginForm = ({ onLogin }: { onLogin: (u: any) => void }) => {
           </CardHeader>
 
           <CardContent>
-            {/* ① Auth Forms */}
+            {/* ① Auth Forms */}
             {view === "auth" && (
-              <Tabs value={authTab} onValueChange={setAuthTab}>
+              <Tabs
+                value={authTab}
+                onValueChange={(v) => setAuthTab(v as "login" | "signup")}
+              >
                 <TabsList className="grid w-full grid-cols-2 mb-6 rounded-lg bg-[#F1ECFF] p-1">
                   <TabsTrigger
                     value="login"
@@ -632,7 +664,7 @@ data-[state=active]:text-indigo-600"
                           className="text-sm text-gray-600"
                           htmlFor="secretKey"
                         >
-                          Secret Key (Employee / Admin)
+                          Secret Key (Employee / Admin)
                         </Label>
                         <Input
                           id="secretKey"
@@ -673,13 +705,13 @@ data-[state=active]:text-indigo-600"
               </Tabs>
             )}
 
-            {/* ② Market News */}
+            {/* ② Market News */}
             {view === "news" && <MarketNews />}
 
-            {/* ③ Leaderboard */}
+            {/* ③ Leaderboard */}
             {view === "leaderboard" && <LiveLeaderboard />}
 
-            {/* ④ Shares grid */}
+            {/* ④ Shares grid */}
             {view === "shares" && <ShareGrid />}
           </CardContent>
         </Card>
