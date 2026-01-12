@@ -33,7 +33,7 @@ interface User {
 
 const socket = io(import.meta.env.VITE_SOCKET_URL); // adjust for production
 
-const EmployeeDashboard = () => {
+const EmployeeDashboard = ({ user }) => {
   const [shares, setShares] = useState<Share[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 

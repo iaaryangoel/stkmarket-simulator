@@ -36,7 +36,7 @@ interface LeaderboardItem {
 
 const socket = io(import.meta.env.VITE_SOCKET_URL); // 🔌
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ user }) => {
   const [shares, setShares] = useState<Share[]>([]);
   const [news, setNews] = useState<NewsItem[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
