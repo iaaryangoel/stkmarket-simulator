@@ -9,6 +9,7 @@ import { Newspaper } from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
 import { toast } from "@/components/ui/use-toast";
+import { AxiosError } from "axios";
 
 interface Share {
   _id: string;
@@ -18,12 +19,27 @@ interface Share {
   lockedUntil?: string | null;
 }
 
+interface NewsItem {
+  _id: string;
+  headline: string;
+  sentiment: "positive" | "negative";
+  affectedShares: string[];
+  impact: number;
+  timestamp: string;
+}
+
+interface LeaderboardItem {
+  participantId: string;
+  name: string;
+  totalNetWorth: number;
+}
+
 const socket = io(import.meta.env.VITE_SOCKET_URL); // 🔌
 
 const AdminDashboard = () => {
   const [shares, setShares] = useState<Share[]>([]);
-  const [news, setNews] = useState<any[]>([]);
-  const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
 
   const [newShare, setNewShare] = useState({ name: "", price: 0 });
   const [newNews, setNewNews] = useState({
@@ -102,7 +118,7 @@ const AdminDashboard = () => {
       setShares((prev) => prev.filter((s) => s._id !== id));
     });
 
-    socket.on("news:new", (news) => {
+    socket.on("news:new", (news: NewsItem) => {
       toast({
         title: "📰 Breaking News",
         description: news.headline,
@@ -132,12 +148,16 @@ const AdminDashboard = () => {
   }, []);
 
   const bumpShare = async (id: string, dir: "inc" | "dec") => {
-    try {
-      await axiosInstance.post(`/shares/${id}/${dir}`);
-    } catch (err: any) {
+  try {
+    await axiosInstance.post(`/shares/${id}/${dir}`);
+  } catch (err: unknown) {
+    if (err instanceof AxiosError) {
       alert(err.response?.data?.msg || "Update failed");
+    } else {
+      alert("Unexpected error occurred");
     }
-  };
+  }
+};
 
   const handleAddShare = async () => {
     if (!newShare.name || newShare.price <= 0) return;
