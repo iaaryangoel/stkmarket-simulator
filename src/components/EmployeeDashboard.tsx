@@ -188,7 +188,7 @@ const EmployeeDashboard = ({ user }) => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 text-slate-600">
-                <tr className="border-b hover:bg-slate-50 transition">
+                <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-right">Price</th>
                   <th className="p-2 text-right">Change %</th>
@@ -391,7 +391,7 @@ const EmployeeDashboard = ({ user }) => {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 text-slate-600">
-                <tr className="border-b hover:bg-slate-50 transition">
+                <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
                   <th className="p-2 text-left">PID</th>
                   <th className="p-2 text-left">Name</th>
                   <th className="p-2 text-right">Balance</th>

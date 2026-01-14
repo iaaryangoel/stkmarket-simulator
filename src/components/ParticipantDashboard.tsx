@@ -116,6 +116,10 @@ const ParticipantDashboard = ({ user }) => {
 
   if (!user) return <div>Loading dashboard...</div>;
 
+  const mid = Math.ceil(shares.length / 2);
+  const leftShares = shares.slice(0, mid);
+  const rightShares = shares.slice(mid);
+
   return (
     <div className="space-y-6">
       {/* Portfolio Overview */}
@@ -125,7 +129,9 @@ const ParticipantDashboard = ({ user }) => {
           style={{ boxShadow: "0 10px 40px rgba(160, 100, 255, 0.3)" }}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="border-t-4 border-orange-500">Cash Balance</CardTitle>
+            <CardTitle className="border-t-4 border-orange-500">
+              Cash Balance
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -182,7 +188,7 @@ const ParticipantDashboard = ({ user }) => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50 text-slate-600">
-                  <tr className="border-b hover:bg-slate-50 transition">
+                  <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
                     <th className="text-left p-2">Name</th>
                     <th className="text-right p-2">Quantity</th>
                     <th className="text-right p-2">Avg Price</th>
@@ -236,44 +242,87 @@ const ParticipantDashboard = ({ user }) => {
         <CardHeader>
           <CardTitle>Market Overview</CardTitle>
         </CardHeader>
+
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="grid grid-cols-2 gap-6">
+            {/* LEFT TABLE */}
+            <table className="w-full text-sm">
               <thead className="bg-slate-50 text-slate-600">
-                <tr className="border-b hover:bg-slate-50 transition">
-                  <th className="text-left p-2">Name</th>
-                  <th className="text-right p-2">Price</th>
-                  <th className="text-right p-2">Change %</th>
+                <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b">
+                  <th className="text-left px-2 py-1">Name</th>
+                  <th className="text-right px-2 py-1">Price</th>
+                  <th className="text-right px-2 py-1">Change %</th>
                 </tr>
               </thead>
               <tbody>
-                {shares.map((share) => (
-                  <tr
-                    key={share._id}
-                    className="border-b hover:bg-slate-50 transition"
-                  >
-                    <td className="p-2 font-medium">{share.name}</td>
-                    <td className="text-right p-2">
+                {leftShares.map((share) => (
+                  <tr key={share._id} className="border-b h-8">
+                    <td className="px-2 py-1 font-medium">{share.name}</td>
+                    <td className="text-right px-2 py-1">
                       ₹{share.price.toFixed(2)}
                     </td>
                     <td
-                      className={`text-right p-2 ${
+                      className={`text-right px-2 py-1 ${
                         share.change >= 0 ? "text-green-600" : "text-red-600"
                       }`}
                     >
                       <div className="flex items-center justify-end gap-1">
                         {share.change >= 0 ? (
-                          <TrendingUp className="h-4 w-4" />
+                          <TrendingUp className="h-3 w-3" />
                         ) : (
-                          <TrendingDown className="h-4 w-4" />
+                          <TrendingDown className="h-3 w-3" />
                         )}
                         <span
-                          className={`px-2 py-0.5 rounded-full text-xs font-semibold
-  ${
-    share.change >= 0
-      ? "bg-green-100 text-green-700"
-      : "bg-red-100 text-red-700"
-  }`}
+                          className={`px-1.5 py-0.5 rounded text-[11px] font-medium
+                      ${
+                        share.change >= 0
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                        >
+                          {share.change.toFixed(2)}%
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* RIGHT TABLE */}
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b">
+                  <th className="text-left px-2 py-1">Name</th>
+                  <th className="text-right px-2 py-1">Price</th>
+                  <th className="text-right px-2 py-1">Change %</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rightShares.map((share) => (
+                  <tr key={share._id} className="border-b h-8">
+                    <td className="px-2 py-1 font-medium">{share.name}</td>
+                    <td className="text-right px-2 py-1">
+                      ₹{share.price.toFixed(2)}
+                    </td>
+                    <td
+                      className={`text-right px-2 py-1 ${
+                        share.change >= 0 ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        {share.change >= 0 ? (
+                          <TrendingUp className="h-3 w-3" />
+                        ) : (
+                          <TrendingDown className="h-3 w-3" />
+                        )}
+                        <span
+                          className={`px-1.5 py-0.5 rounded text-[11px] font-medium
+                      ${
+                        share.change >= 0
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
                         >
                           {share.change.toFixed(2)}%
                         </span>
@@ -299,7 +348,7 @@ const ParticipantDashboard = ({ user }) => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50 text-slate-600">
-                  <tr className="border-b hover:bg-slate-50 transition">
+                  <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
                     <th className="p-2 text-left">Date</th>
                     <th className="p-2 text-left">Action</th>
                     <th className="p-2 text-left">Name</th>
@@ -399,7 +448,7 @@ const ParticipantDashboard = ({ user }) => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50 text-slate-600">
-                  <tr className="border-b hover:bg-slate-50 transition">
+                  <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
                     <th className="p-2 text-left">Rank</th>
                     <th className="p-2 text-left">Participant</th>
                     <th className="p-2 text-right">Net Worth</th>
