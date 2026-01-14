@@ -197,7 +197,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   const MarketNews = () => {
     if (news.length === 0) {
       return (
-        <div className="rounded-xl border bg-white p-4 text-center text-sm text-slate-500">
+        <div className="rounded-xl border bg-white p-5 text-center text-base text-slate-500">
           No market news available yet 📰
         </div>
       );
@@ -206,35 +206,43 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
     const [breaking, ...others] = news;
 
     return (
-      <div className="space-y-6">
-        {/* 🔥 Breaking News */}
-        <div className="animate-pulse relative rounded-2xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-yellow-100 p-5 shadow-sm">
-          <span className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
+      <div className="space-y-8">
+        {/* 🔥 BREAKING NEWS */}
+        <div
+          className="relative rounded-2xl border border-yellow-200 
+bg-gradient-to-r from-yellow-50 to-yellow-100 
+p-8 shadow-lg animate-pulse"
+        >
+          {/* LIVE badge */}
+          <span className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white">
             🔥 BREAKING
           </span>
 
-          <h3 className="text-base font-semibold text-slate-800 pr-24">
+          <h3 className="text-lg sm:text-2xl font-bold text-slate-900 pr-20 sm:pr-36 leading-snug">
             {breaking.headline}
           </h3>
 
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-3 text-sm text-slate-600">
             {new Date(breaking.timestamp).toLocaleString()}
           </p>
         </div>
 
-        {/* 📰 Other News */}
+        {/* 📰 OTHER MARKET NEWS */}
         {others.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {others.map((n) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {others.map((n, index) => (
               <div
                 key={n._id}
-                className="rounded-xl border bg-white p-4 shadow-sm transition hover:shadow-md"
+                className="rounded-xl border bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
+                style={{
+                  animation: `fadeInUp 0.4s ease ${(index + 1) * 0.1}s both`,
+                }}
               >
-                <h4 className="text-sm font-medium text-slate-800 line-clamp-2">
+                <h4 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
                   {n.headline}
                 </h4>
 
-                <p className="mt-2 text-xs text-slate-500">
+                <p className="mt-3 text-sm text-slate-500">
                   {new Date(n.timestamp).toLocaleString()}
                 </p>
               </div>
@@ -246,69 +254,77 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   };
 
   const LiveLeaderboard = () => (
-    <div className="rounded-2xl border bg-white shadow-md overflow-hidden">
+    <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
       {/* Header */}
-      <div className="px-5 py-4 border-b bg-gradient-to-r from-slate-50 to-white">
-        <h2 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-          🏆 Live Leaderboard
-        </h2>
-        <p className="text-xs text-slate-500">
-          Rankings based on total net worth
-        </p>
+      <div className="px-6 py-5 border-b bg-gradient-to-r from-[#F5F2FF] to-white flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            🏆 Live Leaderboard
+            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
+              LIVE
+            </span>
+          </h2>
+          <p className="text-xs text-slate-500">
+            Rankings based on total net worth
+          </p>
+        </div>
       </div>
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50 sticky top-0 z-10">
+        <table className="min-w-[520px] w-full text-sm">
+          <thead className="bg-slate-50">
             <tr className="text-slate-600">
-              <th className="px-5 py-3 text-left font-medium whitespace-nowrap">
-                Rank
-              </th>
-              <th className="px-5 py-3 text-left font-medium">Participant</th>
-              <th className="px-5 py-3 text-right font-medium whitespace-nowrap">
-                Net Worth
-              </th>
+              <th className="px-6 py-3 text-left font-medium">Rank</th>
+              <th className="px-6 py-3 text-left font-medium">Participant</th>
+              <th className="px-6 py-3 text-right font-medium">Net Worth</th>
             </tr>
           </thead>
 
           <tbody className="divide-y">
             {leaderboard.length === 0 && (
               <tr>
-                <td colSpan={3} className="p-6 text-center text-slate-500">
+                <td colSpan={3} className="p-8 text-center text-slate-500">
                   No leaderboard data available yet 🚀
                 </td>
               </tr>
             )}
 
-            {leaderboard.map((p, i) => (
+            {leaderboard.slice(0, 10).map((p, i) => (
               <tr
                 key={p.participantId}
-                className={`transition-colors hover:bg-slate-50 ${
-                  i < 3 ? "bg-slate-50/60" : ""
-                }`}
+                className={`transition-all hover:bg-slate-50 hover:scale-[1.01]
+              ${
+                i === 0
+                  ? "bg-gradient-to-r from-yellow-50 to-white"
+                  : i === 1
+                  ? "bg-gradient-to-r from-slate-100 to-white"
+                  : i === 2
+                  ? "bg-gradient-to-r from-amber-50 to-white"
+                  : ""
+              }`}
               >
                 {/* Rank */}
-                <td className="px-5 py-4">
+                <td className="px-6 py-4">
                   <span
-                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold
-                    ${
-                      i === 0
-                        ? "bg-yellow-200 text-yellow-800 shadow-sm"
-                        : i === 1
-                        ? "bg-slate-200 text-slate-700"
-                        : i === 2
-                        ? "bg-amber-100 text-amber-700"
-                        : "bg-slate-100 text-slate-600"
-                    }`}
+                    className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-xs font-bold
+                ${
+                  i === 0
+                    ? "bg-yellow-300 text-yellow-900 shadow"
+                    : i === 1
+                    ? "bg-slate-300 text-slate-800"
+                    : i === 2
+                    ? "bg-amber-200 text-amber-800"
+                    : "bg-slate-100 text-slate-600"
+                }`}
                   >
-                    {i + 1}
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
                   </span>
                 </td>
 
                 {/* Participant */}
-                <td className="px-5 py-4">
-                  <div className="font-medium text-slate-800 truncate max-w-[220px]">
+                <td className="px-4 py-4">
+                  <div className="font-semibold text-slate-800 text-[16px] truncate max-w-[200px]">
                     {p.name}
                   </div>
                   <div className="text-xs text-slate-500">
@@ -317,8 +333,8 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
                 </td>
 
                 {/* Net Worth */}
-                <td className="px-5 py-4 text-right">
-                  <div className="font-semibold tabular-nums text-slate-900">
+                <td className="px-4 py-4 text-right">
+                  <div className="font-extrabold text-green-700 text-[17px] tabular-nums">
                     ₹{p.totalNetWorth.toLocaleString()}
                   </div>
                   <div className="text-xs text-slate-500">Net Worth</div>
@@ -332,7 +348,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   );
 
   const ShareGrid = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
       {shares.map((s) => {
         const bid = (s.price * 0.98).toFixed(2);
         const ask = (s.price * 1.02).toFixed(2);
@@ -341,7 +357,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
         return (
           <div
             key={s._id}
-            className={`rounded-2xl border p-4 overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 ${
+            className={`rounded-2xl border p-4 overflow-hidden transition-all duration-200 -translate-y-0.5 hover:-translate-y-1 hover:shadow-lg ${
               positive
                 ? "bg-green-50 border-green-200"
                 : "bg-red-50 border-red-200"
@@ -390,124 +406,178 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
     </div>
   );
 
+  const isFullPage = view !== "auth";
+  const viewButtons: { label: string; key: View }[] = [
+    { label: "Market News", key: "news" },
+    { label: "Live Leaderboard", key: "leaderboard" },
+    { label: "Share View", key: "shares" },
+  ];
+
   /* ────────────────────────────────────────── */
   /*                 MAIN RETURN                */
   /* ────────────────────────────────────────── */
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2 bg-[#F4F6FB] overflow-hidden">
-      {/* Curve Shape */}
-      <div className="hidden lg:flex relative justify-center items-center overflow-hidden rounded-r-[75px] bg-[#B09EE4]">
-        <div
-          className={`absolute inset-0 bg-[#261753] rounded-r-[75px] z-0 transition-all duration-700 ease-out ${"mr-[20px]"}`}
+   <div
+  className={`min-h-screen w-full bg-[#F4F6FB] overflow-hidden ${
+    isFullPage ? "grid grid-cols-1" : "grid grid-cols-1 lg:grid-cols-2"
+  }`}
+>
+  {/* ================= MOBILE CURVED HEADER ================= */}
+  {!isFullPage && (
+    <div className="lg:hidden relative w-full bg-[#B09EE4] rounded-b-[32px] pt-8 pb-14 overflow-hidden">
+      {/* Curve Layer */}
+      <div className="absolute inset-0 bg-[#261753] rounded-b-[32px] translate-y-3" />
+
+      {/* Content */}
+      <div className="relative z-10 flex items-center gap-4 px-6">
+        <img
+          src="/Transparent logo.png"
+          alt="Logo"
+          className="h-16 w-16 object-contain"
         />
-        <div className="relative z-10 px-6 sm:px-8">
-          <img
-            src="/login-vector.svg"
-            alt="Signup Illustration"
-            width={400}
-            height={400}
-            className="max-w-full h-auto"
-          />
+
+        <div className="leading-tight text-left">
+          <span className="text-lg font-extrabold tracking-wide text-[#B09EE4]">
+            Finance Committee
+          </span>
+          <span className="block text-sm font-medium text-[#6d6a7c]">
+            FOSTIIMA Chapter
+          </span>
         </div>
-        <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse hover:scale-150 transition-transform duration-300"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-white/15 rounded-full animate-pulse delay-1000 hover:scale-150 transition-transform duration-300"></div>
-        <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse delay-500 hover:scale-150 transition-transform duration-300"></div>
-        <div className="absolute top-1/5 left-1/5 w-2.5 h-2.5 bg-white/20 rounded-full animate-pulse delay-200 hover:scale-150 transition-transform duration-300"></div>
-        <div className="absolute bottom-1/5 right-1/3 w-3.5 h-3.5 bg-white/15 rounded-full animate-pulse delay-1200 hover:scale-150 transition-transform duration-300"></div>
-        <div className="absolute top-4 sm:top-6 left-6 sm:left-10 flex items-center gap-2 sm:gap-3 z-10">
-          {/* Replace with your logo */}
-          <img
-            src="/Transparent logo.png"
-            alt="Logo"
-            width={65}
-            height={65}
-            className="object-contain"
-          />
-          <div className="flex flex-col leading-tight">
-            <span className="text-base sm:text-lg font-extrabold tracking-wider text-[#B09EE4]">
-              Finance Committee
-            </span>
-            <span className="text-sm sm:text-base font-semibold text-[#6d6a7c]">
-              FOSTIIMA Chapter
-            </span>
-          </div>
-        </div>
-        {/* Copyright */}
-        <p className="absolute bottom-6 left-6 text-xs text-white/50 z-10">
-          © 2026 Finance Committee – FOSTIIMA
-        </p>
+      </div>
+    </div>
+  )}
+
+  {/* ================= DESKTOP LEFT PANEL ================= */}
+  {!isFullPage && (
+    <div className="hidden lg:flex relative justify-center items-center overflow-hidden rounded-r-[75px] bg-[#B09EE4]">
+      <div
+        className={`absolute inset-0 bg-[#261753] rounded-r-[75px] z-0 transition-all duration-700 ease-out mr-[20px]`}
+      />
+
+      {/* Illustration */}
+      <div className="relative z-10 px-6 sm:px-8">
+        <img
+          src="/login-vector.svg"
+          alt="Signup Illustration"
+          width={400}
+          height={400}
+          className="max-w-full h-auto"
+        />
       </div>
 
+      {/* Floating Dots */}
+      <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse"></div>
+      <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-white/15 rounded-full animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse delay-500"></div>
+      <div className="absolute top-1/5 left-1/5 w-2.5 h-2.5 bg-white/20 rounded-full animate-pulse delay-200"></div>
+      <div className="absolute bottom-1/5 right-1/3 w-3.5 h-3.5 bg-white/15 rounded-full animate-pulse delay-1200"></div>
+
+      {/* Logo + Text */}
+      <div className="absolute top-6 left-10 flex items-center gap-3 z-10">
+        <img
+          src="/Transparent logo.png"
+          alt="Logo"
+          width={65}
+          height={65}
+          className="object-contain"
+        />
+        <div className="flex flex-col leading-tight">
+          <span className="text-lg font-extrabold tracking-wider text-[#B09EE4]">
+            Finance Committee
+          </span>
+          <span className="text-base font-semibold text-[#6d6a7c]">
+            FOSTIIMA Chapter
+          </span>
+        </div>
+      </div>
+
+      {/* Copyright */}
+      <p className="absolute bottom-6 left-6 text-xs text-white/50 z-10">
+        © 2026 Finance Committee – FOSTIIMA
+      </p>
+    </div>
+  )}
+
       {/* ───────── RIGHT AUTH PANEL ───────── */}
-      <div className="flex items-center justify-center px-4">
+      <div
+        className={`flex ${
+          isFullPage
+            ? "items-start justify-center py-10"
+            : "items-center justify-center"
+        } px-4`}
+      >
         <Card
           className={`w-full ${
-            view === "shares" || view === "news" ? "max-w-[85%]" : "max-w-md"
+            isFullPage ? "max-w-6xl min-h-[85vh]" : "max-w-md"
           }
-  bg-white
-  rounded-2xl
-  shadow-xl
-  border border-gray-200
-  transition-all duration-300`}
+    bg-white rounded-2xl shadow-xl border
+    transition-all duration-300
+  `}
         >
-          <CardHeader className="space-y-2 pb-6 text-left">
-            <CardTitle
-              className="
-    text-3xl font-extrabold tracking-tight
-    bg-gradient-to-r
-    from-[#B09EE4]
-    via-[#8F7AE6]
-    to-[#6B5FB5]
-    bg-clip-text text-transparent
-  "
-            >
-              FBS Stock Market
-            </CardTitle>
-
-            {/* top nav buttons */}
-            {view === "auth" ? (
-              <div className="flex flex-wrap justify-center gap-3">
+          <CardHeader className="pb-6">
+            {/* Header Row */}
+            <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+              {/* Back button */}
+              {view !== "auth" && (
                 <Button
                   variant="outline"
-                  className="rounded-full px-5 py-2 text-sm hover:bg-indigo-50 hover:border-indigo-400 transition"
-                  onClick={() => setView("news")}
+                  size="sm"
+                  onClick={() => setView("auth")}
+                  className="
+  rounded-full px-3 py-2
+  border-[#B09EE4]
+  text-[#6B5FB5]
+  hover:bg-[#B09EE4]/10
+  transition-all
+  whitespace-nowrap
+"
                 >
-                  Market News
+                  ← Back
                 </Button>
+              )}
 
-                <Button
-                  variant="outline"
-                  className="rounded-full px-5  py-2 text-sm hover:bg-indigo-50 hover:border-indigo-400 transition"
-                  onClick={() => setView("leaderboard")}
-                >
-                  Live Leaderboard
-                </Button>
+              {/* Title + Logo */}
+              <div className="flex items-center justify-center gap-2 text-center">
+                {view !== "auth" && (
+                  <img
+                    src="/Transparent logo.png" // ⬅ replace with your logo path
+                    alt="FBS Logo"
+                    className="h-12 w-12 object-contain"
+                  />
+                )}
 
-                <Button
-                  variant="outline"
-                  className="rounded-full px-5  py-2 text-sm hover:bg-indigo-50 hover:border-indigo-400 transition"
-                  onClick={() => setView("shares")}
+                <CardTitle
+                  className="
+          text-xl sm:text-3xl
+ font-extrabold tracking-tight
+          bg-gradient-to-r
+          from-[#B09EE4]
+          via-[#8F7AE6]
+          to-[#6B5FB5]
+          bg-clip-text text-transparent
+          text-center
+        "
                 >
-                  Share View
-                </Button>
+                  FBS Stock Market
+                </CardTitle>
               </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setView("auth")}
-                className="
-    rounded-full px-4 py-2
-    border-[#B09EE4]
-    text-[#6B5FB5]
-    hover:bg-[#B09EE4]/10
-    hover:text-[#4B3CA7]
-    hover:border-[#9A86DB]
-    transition-all duration-200
-  "
-              >
-                ← Back to Home
-              </Button>
+            </div>
+
+            {/* Navigation buttons only on auth */}
+            {view === "auth" && (
+              <div className="mt-4 flex flex-wrap justify-center gap-3">
+                {viewButtons.map((btn) => (
+                  <Button
+                    key={btn.key}
+                    variant="outline"
+                    onClick={() => setView(btn.key)}
+                    className="rounded-full px-5 py-2 text-sm transition hover:bg-indigo-50"
+                  >
+                    {btn.label}
+                  </Button>
+                ))}
+              </div>
             )}
           </CardHeader>
 
