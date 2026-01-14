@@ -407,7 +407,7 @@ const AdminDashboard = ({ user }) => {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-600">
-                  <tr>
+                  <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50">
                     <th className="px-5 py-3 text-left font-medium">Rank</th>
                     <th className="px-5 py-3 text-left font-medium">
                       Participant
