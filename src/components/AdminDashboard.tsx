@@ -10,6 +10,13 @@ import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
 import { toast } from "@/components/ui/use-toast";
 import { AxiosError } from "axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface Share {
   _id: string;
@@ -51,6 +58,13 @@ const AdminDashboard = ({ user }) => {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [marketRunning, setMarketRunning] = useState(true);
+
+  const [bumpDialogOpen, setBumpDialogOpen] = useState(false);
+  const [bumpValue, setBumpValue] = useState<number>(0);
+  const [bumpTarget, setBumpTarget] = useState<{
+    id: string;
+    sign: "+" | "-";
+  } | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -147,17 +161,36 @@ const AdminDashboard = ({ user }) => {
     };
   }, []);
 
-  const bumpShare = async (id: string, dir: "inc" | "dec") => {
-  try {
-    await axiosInstance.post(`/shares/${id}/${dir}`);
-  } catch (err: unknown) {
-    if (err instanceof AxiosError) {
-      alert(err.response?.data?.msg || "Update failed");
-    } else {
-      alert("Unexpected error occurred");
+  const openBumpDialog = (id: string, sign: "+" | "-") => {
+    setBumpTarget({ id, sign });
+    setBumpValue(0);
+    setBumpDialogOpen(true);
+  };
+
+  const confirmBump = async () => {
+    if (!bumpTarget || bumpValue <= 0) {
+      toast({
+        title: "Invalid value",
+        description: "Please enter a positive percentage",
+        variant: "destructive",
+      });
+      return;
     }
-  }
-};
+
+    const percent = bumpTarget.sign === "+" ? bumpValue : -bumpValue;
+
+    try {
+      await axiosInstance.post(`/shares/${bumpTarget.id}/bump`, { percent });
+
+      setBumpDialogOpen(false);
+    } catch (err: any) {
+      toast({
+        title: "Update failed",
+        description: err.response?.data?.msg || "Something went wrong",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleAddShare = async () => {
     if (!newShare.name || newShare.price <= 0) return;
@@ -242,18 +275,20 @@ const AdminDashboard = ({ user }) => {
                       size="sm"
                       variant="outline"
                       disabled={locked}
-                      onClick={() => bumpShare(sh._id, "inc")}
+                      onClick={() => openBumpDialog(sh._id, "+")}
                     >
-                      +2%
+                      +
                     </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={locked}
-                      onClick={() => bumpShare(sh._id, "dec")}
+                      onClick={() => openBumpDialog(sh._id, "-")}
                     >
-                      ‑2%
+                      −
                     </Button>
+
                     <Button
                       size="sm"
                       variant="outline"
@@ -466,6 +501,39 @@ const AdminDashboard = ({ user }) => {
           )}
         </CardContent>
       </Card>
+
+      {/* ───────── Bump Percentage Dialog ───────── */}
+      <Dialog open={bumpDialogOpen} onOpenChange={setBumpDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {bumpTarget?.sign === "+"
+                ? "Increase Share Price"
+                : "Decrease Share Price"}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Input
+              type="number"
+              min={1}
+              placeholder="Enter percentage"
+              value={bumpValue}
+              onChange={(e) => setBumpValue(+e.target.value)}
+            />
+            <p className="text-sm text-slate-500">
+              Example: 5 means {bumpTarget?.sign}5%
+            </p>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBumpDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmBump}>Confirm</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
