@@ -417,87 +417,90 @@ p-8 shadow-lg animate-pulse"
   /*                 MAIN RETURN                */
   /* ────────────────────────────────────────── */
   return (
-   <div
-  className={`min-h-screen w-full bg-[#F4F6FB] overflow-hidden ${
-    isFullPage ? "grid grid-cols-1" : "grid grid-cols-1 lg:grid-cols-2"
-  }`}
->
-  {/* ================= MOBILE CURVED HEADER ================= */}
-  {!isFullPage && (
-    <div className="lg:hidden relative w-full bg-[#B09EE4] rounded-b-[32px] pt-8 pb-14 overflow-hidden">
-      {/* Curve Layer */}
-      <div className="absolute inset-0 bg-[#261753] rounded-b-[32px] translate-y-3" />
+    <div
+      className={`min-h-screen w-full bg-[#F4F6FB] overflow-hidden ${
+        isFullPage ? "grid grid-cols-1" : "grid grid-cols-1 lg:grid-cols-2"
+      }`}
+    >
+      {/* ================= MOBILE CURVED HEADER ================= */}
+      {!isFullPage && (
+        <div className="lg:hidden relative w-full bg-[#261753] pt-6 pb-8 overflow-hidden">
+          {/* OVAL CURVE */}
+          <div
+            className="absolute left-1/2 -bottom-12 w-[160%] h-28 
+                 -translate-x-1/2 bg-[#B09EE4] rounded-[100%]"
+          />
 
-      {/* Content */}
-      <div className="relative z-10 flex items-center gap-4 px-6">
-        <img
-          src="/Transparent logo.png"
-          alt="Logo"
-          className="h-16 w-16 object-contain"
-        />
+          {/* CONTENT */}
+          <div className="relative z-10 flex items-center gap-3 px-6">
+            <img
+              src="/Transparent logo.png"
+              alt="Logo"
+              className="h-14 w-14 object-contain"
+            />
 
-        <div className="leading-tight text-left">
-          <span className="text-lg font-extrabold tracking-wide text-[#B09EE4]">
-            Finance Committee
-          </span>
-          <span className="block text-sm font-medium text-[#6d6a7c]">
-            FOSTIIMA Chapter
-          </span>
+            <div className="leading-tight text-left">
+              <span className="text-base font-extrabold tracking-wide text-[#B09EE4]">
+                Finance Committee
+              </span>
+              <span className="block text-xs font-medium text-[#6d6a7c]">
+                FOSTIIMA Chapter
+              </span>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  )}
+      )}
 
-  {/* ================= DESKTOP LEFT PANEL ================= */}
-  {!isFullPage && (
-    <div className="hidden lg:flex relative justify-center items-center overflow-hidden rounded-r-[75px] bg-[#B09EE4]">
-      <div
-        className={`absolute inset-0 bg-[#261753] rounded-r-[75px] z-0 transition-all duration-700 ease-out mr-[20px]`}
-      />
+      {/* ================= DESKTOP LEFT PANEL ================= */}
+      {!isFullPage && (
+        <div className="hidden lg:flex relative justify-center items-center overflow-hidden rounded-r-[75px] bg-[#B09EE4]">
+          <div
+            className={`absolute inset-0 bg-[#261753] rounded-r-[75px] z-0 transition-all duration-700 ease-out mr-[20px]`}
+          />
 
-      {/* Illustration */}
-      <div className="relative z-10 px-6 sm:px-8">
-        <img
-          src="/login-vector.svg"
-          alt="Signup Illustration"
-          width={400}
-          height={400}
-          className="max-w-full h-auto"
-        />
-      </div>
+          {/* Illustration */}
+          <div className="relative z-10 px-6 sm:px-8">
+            <img
+              src="/login-vector.svg"
+              alt="Signup Illustration"
+              width={400}
+              height={400}
+              className="max-w-full h-auto"
+            />
+          </div>
 
-      {/* Floating Dots */}
-      <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-white/15 rounded-full animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse delay-500"></div>
-      <div className="absolute top-1/5 left-1/5 w-2.5 h-2.5 bg-white/20 rounded-full animate-pulse delay-200"></div>
-      <div className="absolute bottom-1/5 right-1/3 w-3.5 h-3.5 bg-white/15 rounded-full animate-pulse delay-1200"></div>
+          {/* Floating Dots */}
+          <div className="absolute top-1/4 right-1/4 w-3 h-3 bg-white/20 rounded-full animate-pulse"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-4 h-4 bg-white/15 rounded-full animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/3 w-2 h-2 bg-white/25 rounded-full animate-pulse delay-500"></div>
+          <div className="absolute top-1/5 left-1/5 w-2.5 h-2.5 bg-white/20 rounded-full animate-pulse delay-200"></div>
+          <div className="absolute bottom-1/5 right-1/3 w-3.5 h-3.5 bg-white/15 rounded-full animate-pulse delay-1200"></div>
 
-      {/* Logo + Text */}
-      <div className="absolute top-6 left-10 flex items-center gap-3 z-10">
-        <img
-          src="/Transparent logo.png"
-          alt="Logo"
-          width={65}
-          height={65}
-          className="object-contain"
-        />
-        <div className="flex flex-col leading-tight">
-          <span className="text-lg font-extrabold tracking-wider text-[#B09EE4]">
-            Finance Committee
-          </span>
-          <span className="text-base font-semibold text-[#6d6a7c]">
-            FOSTIIMA Chapter
-          </span>
+          {/* Logo + Text */}
+          <div className="absolute top-6 left-10 flex items-center gap-3 z-10">
+            <img
+              src="/Transparent logo.png"
+              alt="Logo"
+              width={65}
+              height={65}
+              className="object-contain"
+            />
+            <div className="flex flex-col leading-tight">
+              <span className="text-lg font-extrabold tracking-wider text-[#B09EE4]">
+                Finance Committee
+              </span>
+              <span className="text-base font-semibold text-[#6d6a7c]">
+                FOSTIIMA Chapter
+              </span>
+            </div>
+          </div>
+
+          {/* Copyright */}
+          <p className="absolute bottom-6 left-6 text-xs text-white/50 z-10">
+            © 2026 Finance Committee – FOSTIIMA
+          </p>
         </div>
-      </div>
-
-      {/* Copyright */}
-      <p className="absolute bottom-6 left-6 text-xs text-white/50 z-10">
-        © 2026 Finance Committee – FOSTIIMA
-      </p>
-    </div>
-  )}
+      )}
 
       {/* ───────── RIGHT AUTH PANEL ───────── */}
       <div
