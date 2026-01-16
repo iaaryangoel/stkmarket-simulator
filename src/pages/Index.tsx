@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 import LoginForm from "@/components/LoginForm";
 import ParticipantDashboard from "@/components/ParticipantDashboard";
 import EmployeeDashboard from "@/components/EmployeeDashboard";
@@ -45,36 +46,61 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="bg-slate-900 text-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-          <img
-            src="/Transparent logo.png"
-            alt="Logo"
-            width={55}
-            height={55}
-            className="object-contain mr-[-62%]"
-          />
-          <h1 className="ml-[3%] text-xl sm:text-2xl font-semibold tracking-wide">
-            FBS Stock Market
-          </h1>
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="sticky top-0 z-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-md text-white shadow-lg"
+      >
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* Logo + Title */}
+          <motion.div
+            initial={{ x: -40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-3"
+          >
+            <motion.img
+              src="/Transparent logo.png"
+              alt="Logo"
+              className="h-12 w-12 drop-shadow-[0_0_10px_rgba(167,139,250,0.7)]"
+              whileHover={{ scale: 1.08, rotate: -2 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            />
+            <h1 className="text-xl sm:text-2xl font-semibold tracking-wide">
+              FOSTIIMA Stock Exchange
+            </h1>
+          </motion.div>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <span className="hidden sm:block text-sm text-slate-300 capitalize">
+          {/* User Info */}
+          <motion.div
+            initial={{ x: 40, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="flex items-center gap-3 sm:gap-4"
+          >
+            <span className="hidden sm:inline-block text-sm px-3 py-1 rounded-full bg-white/10 backdrop-blur text-slate-200 capitalize">
               {currentUser?.role}: {currentUser?.name}
             </span>
 
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="border-white text-black hover:bg-white hover:text-blue-400 transition"
-            >
-              Logout
-            </Button>
-          </div>
+            <motion.div whileTap={{ scale: 0.95 }}>
+              <Button
+                onClick={handleLogout}
+                variant="outline"
+                className="border-white text-black bg-white hover:bg-slate-200 transition"
+              >
+                Logout
+              </Button>
+            </motion.div>
+          </motion.div>
         </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-4 py-6">
+      </motion.header>
+      <motion.main
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="max-w-7xl mx-auto px-4 py-6"
+      >
         {currentUser?.role === "participant" && (
           <ParticipantDashboard user={currentUser} />
         )}
@@ -82,7 +108,7 @@ const Index = () => {
           <EmployeeDashboard user={currentUser} />
         )}
         {currentUser?.role === "admin" && <AdminDashboard user={currentUser} />}
-      </main>
+      </motion.main>
     </div>
   );
 };
