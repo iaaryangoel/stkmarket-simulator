@@ -10,6 +10,7 @@ import axiosInstance from "@/lib/axiosInstance";
 import { io } from "socket.io-client";
 import { toast } from "@/components/ui/use-toast";
 import { AxiosError } from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,18 @@ interface LeaderboardItem {
 }
 
 const socket = io(import.meta.env.VITE_SOCKET_URL); // 🔌
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 },
+};
 
 const AdminDashboard = ({ user }) => {
   const [shares, setShares] = useState<Share[]>([]);
@@ -183,10 +196,12 @@ const AdminDashboard = ({ user }) => {
       await axiosInstance.post(`/shares/${bumpTarget.id}/bump`, { percent });
 
       setBumpDialogOpen(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ msg?: string }>;
+
       toast({
         title: "Update failed",
-        description: err.response?.data?.msg || "Something went wrong",
+        description: error.response?.data?.msg ?? "Something went wrong",
         variant: "destructive",
       });
     }
@@ -219,322 +234,376 @@ const AdminDashboard = ({ user }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* ───────── Share Management ───────── */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Manage Shares</CardTitle>
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="max-w-6xl mx-auto space-y-8"
+    >
+      <motion.div variants={item}>
+        {/* ───────── Share Management ───────── */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Manage Shares</CardTitle>
 
-          <Button
-            onClick={toggleMarket}
-            className={
-              marketRunning
-                ? "bg-green-600 hover:bg-green-700 text-white animate-pulse"
-                : "bg-red-600 hover:bg-red-700 text-white"
-            }
-          >
-            {marketRunning ? "● Market ON" : "● Market OFF"}
-          </Button>
-        </CardHeader>
-
-        <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Share Name"
-              value={newShare.name}
-              onChange={(e) =>
-                setNewShare({ ...newShare, name: e.target.value.toUpperCase() })
-              }
-            />
-            <Input
-              type="number"
-              placeholder="Price"
-              value={newShare.price}
-              onChange={(e) =>
-                setNewShare({ ...newShare, price: +e.target.value })
-              }
-            />
-            <Button onClick={handleAddShare}>Add</Button>
-          </div>
-
-          <ul className="space-y-2">
-            {shares.map((sh) => {
-              const locked =
-                sh.lockedUntil && new Date(sh.lockedUntil) > new Date();
-              return (
-                <li
-                  key={sh._id}
-                  className="border rounded-lg px-4 py-3 flex justify-between items-center hover:bg-slate-50 transition"
-                >
-                  <div className="flex-1">
-                    <strong>{sh.name}</strong> : ₹{sh.price.toFixed(2)}
-                    {locked && <Badge className="ml-2">locked</Badge>}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={locked}
-                      onClick={() => openBumpDialog(sh._id, "+")}
-                    >
-                      +
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={locked}
-                      onClick={() => openBumpDialog(sh._id, "-")}
-                    >
-                      −
-                    </Button>
-
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDeleteShare(sh._id)}
-                    >
-                      ❌
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </CardContent>
-      </Card>
-
-      {/* ───────── News Management ───────── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Manage News</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Textarea
-            className="min-h-[80px]"
-            placeholder="Headline"
-            value={newNews.headline}
-            onChange={(e) =>
-              setNewNews({ ...newNews, headline: e.target.value })
-            }
-          />
-
-          <div className="flex flex-wrap gap-2">
-            {/* multiselect */}
-            <div className="relative min-w-[200px]" ref={dropdownRef}>
+            <motion.div
+              animate={marketRunning ? { scale: [1, 1.05, 1] } : {}}
+              transition={{ repeat: Infinity, duration: 1.5 }}
+            >
               <Button
-                type="button"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="text-left w-full"
+                onClick={toggleMarket}
+                className={
+                  marketRunning
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-lg shadow-green-500/30"
+                    : "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/30"
+                }
               >
-                {newNews.affectedShares.length
-                  ? `Selected: ${newNews.affectedShares.join(", ")}`
-                  : "Select Shares"}
+                {marketRunning ? "● Market ON" : "● Market OFF"}
               </Button>
-              {dropdownOpen && (
-                <div className="absolute z-10 bg-white border rounded shadow p-2 w-full">
-                  {shares.map((sh) => (
-                    <label key={sh._id} className="flex gap-2 py-1">
-                      <input
-                        type="checkbox"
-                        checked={newNews.affectedShares.includes(sh.name)}
-                        onChange={(e) => {
-                          const list = newNews.affectedShares;
-                          const updated = e.target.checked
-                            ? [...list, sh.name]
-                            : list.filter((s) => s !== sh.name);
-                          setNewNews({ ...newNews, affectedShares: updated });
-                        }}
-                      />
-                      {sh.name}
-                    </label>
-                  ))}
-                </div>
-              )}
+            </motion.div>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Share Name"
+                value={newShare.name}
+                onChange={(e) =>
+                  setNewShare({
+                    ...newShare,
+                    name: e.target.value.toUpperCase(),
+                  })
+                }
+                className="focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+              />
+              <Input
+                type="number"
+                placeholder="Price"
+                value={newShare.price}
+                onChange={(e) =>
+                  setNewShare({ ...newShare, price: +e.target.value })
+                }
+                className="focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+              />
+              <Button onClick={handleAddShare}>Add</Button>
             </div>
 
-            <Input
-              type="number"
-              min={1}
-              max={5}
-              className="w-20"
-              value={newNews.impact}
+            <ul className="space-y-2">
+              {shares.map((sh) => {
+                const locked =
+                  sh.lockedUntil && new Date(sh.lockedUntil) > new Date();
+                return (
+                  <motion.li
+                    key={sh._id}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    whileHover={{ scale: 1.01 }}
+                    className="border rounded-xl px-4 py-3 flex justify-between items-center bg-white hover:bg-slate-50 transition"
+                  >
+                    <div className="flex-1">
+                      <strong>{sh.name}</strong> : ₹{sh.price.toFixed(2)}
+                      {locked && <Badge className="ml-2">locked</Badge>}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={locked}
+                        onClick={() => openBumpDialog(sh._id, "+")}
+                      >
+                        +
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={locked}
+                        onClick={() => openBumpDialog(sh._id, "-")}
+                      >
+                        −
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteShare(sh._id)}
+                      >
+                        ❌
+                      </Button>
+                    </div>
+                  </motion.li>
+                );
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item}>
+        {/* ───────── News Management ───────── */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage News</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Textarea
+              className="min-h-[80px] focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+              placeholder="Headline"
+              value={newNews.headline}
               onChange={(e) =>
-                setNewNews({ ...newNews, impact: +e.target.value })
+                setNewNews({ ...newNews, headline: e.target.value })
               }
             />
 
-            <select
-              className="border rounded px-3 py-2"
-              value={newNews.sentiment}
-              onChange={(e) =>
-                setNewNews({ ...newNews, sentiment: e.target.value })
-              }
-            >
-              <option value="positive">Positive</option>
-              <option value="negative">Negative</option>
-            </select>
-
-            <Button onClick={handleAddNews}>Post News</Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* ───────── News List ───────── */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Newspaper className="h-5 w-5" /> Market News
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-3">
-            {news.map((n) => (
-              <li key={n._id} className="relative border rounded-lg p-4">
-                <div
-                  className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${
-                    n.sentiment === "positive" ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-                <div className="flex justify-between">
-                  <h4 className="font-semibold">{n.headline}</h4>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() =>
-                      axiosInstance.delete(`/news/${n._id}`).then(fetchNews)
-                    }
-                  >
-                    Delete
-                  </Button>
-                </div>
-                <p className="text-sm text-gray-600">
-                  Affected: {n.affectedShares.join(", ")} | Impact: {n.impact}
-                </p>
-                <Badge
-                  variant={
-                    n.sentiment === "positive" ? "default" : "destructive"
-                  }
+            <div className="flex flex-wrap gap-2">
+              {/* multiselect */}
+              <div className="relative min-w-[200px]" ref={dropdownRef}>
+                <Button
+                  type="button"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="text-left w-full"
                 >
-                  {n.sentiment}
-                </Badge>
-                <p className="text-xs text-slate-500 mt-1">
-                  {new Date(n.timestamp).toLocaleString()}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+                  {newNews.affectedShares.length
+                    ? `Selected: ${newNews.affectedShares.join(", ")}`
+                    : "Select Shares"}
+                </Button>
+                {dropdownOpen && (
+                  <div className="absolute z-10 bg-white border rounded shadow p-2 w-full">
+                    {shares.map((sh) => (
+                      <label key={sh._id} className="flex gap-2 py-1">
+                        <input
+                          type="checkbox"
+                          checked={newNews.affectedShares.includes(sh.name)}
+                          onChange={(e) => {
+                            const list = newNews.affectedShares;
+                            const updated = e.target.checked
+                              ? [...list, sh.name]
+                              : list.filter((s) => s !== sh.name);
+                            setNewNews({ ...newNews, affectedShares: updated });
+                          }}
+                          className="focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+                        />
+                        {sh.name}
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-      {/* ───────── Leaderboard ───────── */}
-      <Card className="rounded-2xl border bg-white shadow-sm">
-        <CardHeader className="border-b bg-slate-50">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            🏆 Live Leaderboard (Top 5)
-          </CardTitle>
-        </CardHeader>
+              <Input
+                type="number"
+                min={1}
+                max={5}
+                className="w-20 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+                value={newNews.impact}
+                onChange={(e) =>
+                  setNewNews({ ...newNews, impact: +e.target.value })
+                }
+              />
 
-        <CardContent className="p-0">
-          {leaderboard.length === 0 ? (
-            <p className="p-4 text-sm text-slate-500">No data available</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-600">
-                  <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50">
-                    <th className="px-5 py-3 text-left font-medium">Rank</th>
-                    <th className="px-5 py-3 text-left font-medium">
-                      Participant
-                    </th>
-                    <th className="px-5 py-3 text-right font-medium">
-                      Net Worth
-                    </th>
-                  </tr>
-                </thead>
+              <select
+                className="border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+                value={newNews.sentiment}
+                onChange={(e) =>
+                  setNewNews({ ...newNews, sentiment: e.target.value })
+                }
+              >
+                <option value="positive">Positive</option>
+                <option value="negative">Negative</option>
+              </select>
 
-                <tbody className="divide-y">
-                  {leaderboard.map((p, i) => (
-                    <tr
-                      key={p.participantId}
-                      className="hover:bg-slate-50 transition"
+              <Button onClick={handleAddNews}>Post News</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+      <motion.div variants={item}>
+        {/* ───────── News List ───────── */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Newspaper className="h-5 w-5" /> Market News
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              <AnimatePresence>
+                {news.map((n) => (
+                  <motion.li
+                    key={n._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="relative border rounded-xl p-4 bg-white hover:shadow-md transition"
+                  >
+                    <div
+                      className={`absolute left-0 top-0 h-full w-1 rounded-l-lg ${
+                        n.sentiment === "positive"
+                          ? "bg-green-500"
+                          : "bg-red-500"
+                      }`}
+                    />
+                    <div className="flex justify-between">
+                      <h4 className="font-semibold">{n.headline}</h4>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() =>
+                          axiosInstance.delete(`/news/${n._id}`).then(fetchNews)
+                        }
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Affected: {n.affectedShares.join(", ")} | Impact:{" "}
+                      {n.impact}
+                    </p>
+                    <Badge
+                      variant={
+                        n.sentiment === "positive" ? "default" : "destructive"
+                      }
                     >
-                      {/* Rank */}
-                      <td className="px-5 py-4">
-                        <span
-                          className={`inline-flex w-8 h-8 items-center justify-center rounded-full text-xs font-bold
+                      {n.sentiment}
+                    </Badge>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {new Date(n.timestamp).toLocaleString()}
+                    </p>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </ul>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div variants={item}>
+        {/* ───────── Leaderboard ───────── */}
+        <Card className="rounded-2xl border bg-white shadow-sm">
+          <CardHeader className="border-b bg-slate-50">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              🏆 Live Leaderboard (Top 5)
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            {leaderboard.length === 0 ? (
+              <p className="p-4 text-sm text-slate-500">No data available</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-600">
+                    <motion.tr
+                      layout
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      whileHover={{ backgroundColor: "#f8fafc" }}
+                      className="transition"
+                    >
+                      <th className="px-5 py-3 text-left font-medium">Rank</th>
+                      <th className="px-5 py-3 text-left font-medium">
+                        Participant
+                      </th>
+                      <th className="px-5 py-3 text-right font-medium">
+                        Net Worth
+                      </th>
+                    </motion.tr>
+                  </thead>
+
+                  <tbody className="divide-y">
+                    {leaderboard.map((p, i) => (
+                      <tr
+                        key={p.participantId}
+                        className="hover:bg-slate-50 transition"
+                      >
+                        {/* Rank */}
+                        <td className="px-5 py-4">
+                          <span
+                            className={`inline-flex w-8 h-8 items-center justify-center rounded-full text-xs font-bold
                       ${
                         i === 0
                           ? "bg-yellow-100 text-yellow-700"
                           : i === 1
-                          ? "bg-slate-200 text-slate-700"
-                          : i === 2
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-slate-100 text-slate-600"
+                            ? "bg-slate-200 text-slate-700"
+                            : i === 2
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-slate-100 text-slate-600"
                       }`}
-                        >
-                          {i + 1}
-                        </span>
-                      </td>
+                          >
+                            {i + 1}
+                          </span>
+                        </td>
 
-                      {/* Participant */}
-                      <td className="px-5 py-4">
-                        <div className="font-medium text-slate-800 truncate max-w-[220px]">
-                          {p.name}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          ID: {p.participantId}
-                        </div>
-                      </td>
+                        {/* Participant */}
+                        <td className="px-5 py-4">
+                          <div className="font-medium text-slate-800 truncate max-w-[220px]">
+                            {p.name}
+                          </div>
+                          <div className="text-xs text-slate-500">
+                            ID: {p.participantId}
+                          </div>
+                        </td>
 
-                      {/* Net Worth */}
-                      <td className="px-5 py-4 text-right">
-                        <div className="font-semibold text-slate-800">
-                          ₹{p.totalNetWorth.toLocaleString()}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                        {/* Net Worth */}
+                        <td className="px-5 py-4 text-right">
+                          <div className="font-semibold text-slate-800">
+                            ₹{p.totalNetWorth.toLocaleString()}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* ───────── Bump Percentage Dialog ───────── */}
       <Dialog open={bumpDialogOpen} onOpenChange={setBumpDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {bumpTarget?.sign === "+"
-                ? "Increase Share Price"
-                : "Decrease Share Price"}
-            </DialogTitle>
-          </DialogHeader>
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.25 }}
+        >
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>
+                {bumpTarget?.sign === "+"
+                  ? "Increase Share Price"
+                  : "Decrease Share Price"}
+              </DialogTitle>
+            </DialogHeader>
 
-          <div className="space-y-4">
-            <Input
-              type="number"
-              min={1}
-              placeholder="Enter percentage"
-              value={bumpValue}
-              onChange={(e) => setBumpValue(+e.target.value)}
-            />
-            <p className="text-sm text-slate-500">
-              Example: 5 means {bumpTarget?.sign}5%
-            </p>
-          </div>
+            <div className="space-y-4">
+              <Input
+                type="number"
+                min={1}
+                placeholder="Enter percentage"
+                value={bumpValue}
+                onChange={(e) => setBumpValue(+e.target.value)}
+                className="focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition"
+              />
+              <p className="text-sm text-slate-500">
+                Example: 5 means {bumpTarget?.sign}5%
+              </p>
+            </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBumpDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={confirmBump}>Confirm</Button>
-          </DialogFooter>
-        </DialogContent>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setBumpDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={confirmBump}>Confirm</Button>
+            </DialogFooter>
+          </DialogContent>
+        </motion.div>
       </Dialog>
-    </div>
+    </motion.div>
   );
 };
 

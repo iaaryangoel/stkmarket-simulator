@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { AxiosError } from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* ────────────────────────────────────────────────────────── */
 /*                      helper types                          */
@@ -190,53 +191,114 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
     }
   };
 
+  /* ───────────────────── Animated Views ───────────────────── */
+
+  const AnimatedView = ({ children }: { children: React.ReactNode }) => (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
+    >
+      {children}
+    </motion.div>
+  );
+
   /* ────────────────────────────────────────── */
   /*            SMALL REUSABLE VIEWS           */
   /* ────────────────────────────────────────── */
 
   const MarketNews = () => {
-    if (news.length === 0) {
-      return (
-        <div className="rounded-xl border bg-white p-5 text-center text-base text-slate-500">
-          No market news available yet 📰
-        </div>
-      );
-    }
-
-    const [breaking, ...others] = news;
-
+  if (news.length === 0) {
     return (
-      <div className="space-y-8">
-        {/* 🔥 BREAKING NEWS */}
-        <div
-          className="relative rounded-2xl border border-yellow-200 
-bg-gradient-to-r from-yellow-50 to-yellow-100 
-p-8 shadow-lg animate-pulse"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="rounded-xl border bg-white p-5 text-center text-base text-slate-500"
+      >
+        No market news available yet 📰
+      </motion.div>
+    );
+  }
+
+  const [breaking, ...others] = news;
+
+  return (
+    <div className="space-y-8">
+      {/* 🔥 BREAKING NEWS */}
+      <motion.div
+        key={breaking._id}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          boxShadow: [
+            "0 0 0px rgba(239,68,68,0)",
+            "0 0 25px rgba(239,68,68,0.35)",
+            "0 0 0px rgba(239,68,68,0)",
+          ],
+        }}
+        transition={{
+          duration: 0.6,
+          boxShadow: {
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          },
+        }}
+        className="relative rounded-2xl border border-yellow-200 
+        bg-gradient-to-r from-yellow-50 to-yellow-100 
+        p-8 shadow-lg"
+      >
+        {/* LIVE badge */}
+        <motion.span
+          animate={{ opacity: [1, 0.4, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="absolute top-4 right-4 inline-flex items-center gap-2 
+          rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white"
         >
-          {/* LIVE badge */}
-          <span className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white">
-            🔥 BREAKING
-          </span>
+          🔥 BREAKING
+        </motion.span>
 
-          <h3 className="text-lg sm:text-2xl font-bold text-slate-900 pr-20 sm:pr-36 leading-snug">
-            {breaking.headline}
-          </h3>
+        <motion.h3
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="text-lg sm:text-2xl font-bold text-slate-900 pr-20 sm:pr-36 leading-snug"
+        >
+          {breaking.headline}
+        </motion.h3>
 
-          <p className="mt-3 text-sm text-slate-600">
-            {new Date(breaking.timestamp).toLocaleString()}
-          </p>
-        </div>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.25 }}
+          className="mt-3 text-sm text-slate-600"
+        >
+          {new Date(breaking.timestamp).toLocaleString()}
+        </motion.p>
+      </motion.div>
 
-        {/* 📰 OTHER MARKET NEWS */}
-        {others.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {others.map((n, index) => (
-              <div
+      {/* 📰 OTHER MARKET NEWS */}
+      {others.length > 0 && (
+        <motion.div
+          layout
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          <AnimatePresence>
+            {others.map((n) => (
+              <motion.div
                 key={n._id}
-                className="rounded-xl border bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5"
-                style={{
-                  animation: `fadeInUp 0.4s ease ${(index + 1) * 0.1}s both`,
+                layout
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{
+                  duration: 0.35,
+                  ease: "easeOut",
                 }}
+                className="rounded-xl border bg-white p-5 shadow-sm 
+                transition-all duration-300 hover:shadow-md hover:-translate-y-1"
               >
                 <h4 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
                   {n.headline}
@@ -245,86 +307,107 @@ p-8 shadow-lg animate-pulse"
                 <p className="mt-3 text-sm text-slate-500">
                   {new Date(n.timestamp).toLocaleString()}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
-        )}
-      </div>
-    );
-  };
+          </AnimatePresence>
+        </motion.div>
+      )}
+    </div>
+  );
+};
 
   const LiveLeaderboard = () => (
-    <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
-      {/* Header */}
-      <div className="px-6 py-5 border-b bg-gradient-to-r from-[#F5F2FF] to-white flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-            🏆 Live Leaderboard
-            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
-              LIVE
-            </span>
-          </h2>
-          <p className="text-xs text-slate-500">
-            Rankings based on total net worth
-          </p>
-        </div>
+  <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
+    {/* Header */}
+    <div className="px-6 py-5 border-b bg-gradient-to-r from-[#F5F2FF] to-white flex items-center justify-between">
+      <div>
+        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+          🏆 Live Leaderboard
+          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
+            LIVE
+          </span>
+        </h2>
+        <p className="text-xs text-slate-500">
+          Rankings based on total net worth
+        </p>
       </div>
+    </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-[520px] w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr className="text-slate-600">
-              <th className="px-6 py-3 text-left font-medium">Rank</th>
-              <th className="px-6 py-3 text-left font-medium">Participant</th>
-              <th className="px-6 py-3 text-right font-medium">Net Worth</th>
+    {/* Table */}
+    <div className="overflow-x-auto">
+      <table className="min-w-[520px] w-full text-sm">
+        <thead className="bg-slate-50">
+          <tr className="text-slate-600">
+            <th className="px-6 py-3 text-left font-medium">Rank</th>
+            <th className="px-6 py-3 text-left font-medium">Participant</th>
+            <th className="px-6 py-3 text-right font-medium">Net Worth</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y">
+          {leaderboard.length === 0 && (
+            <tr>
+              <td colSpan={3} className="p-8 text-center text-slate-500">
+                No leaderboard data available yet 🚀
+              </td>
             </tr>
-          </thead>
+          )}
 
-          <tbody className="divide-y">
-            {leaderboard.length === 0 && (
-              <tr>
-                <td colSpan={3} className="p-8 text-center text-slate-500">
-                  No leaderboard data available yet 🚀
-                </td>
-              </tr>
-            )}
-
+          <AnimatePresence initial={false}>
             {leaderboard.slice(0, 10).map((p, i) => (
-              <tr
+              <motion.tr
                 key={p.participantId}
-                className={`transition-all hover:bg-slate-50 hover:scale-[1.01]
-              ${
-                i === 0
-                  ? "bg-gradient-to-r from-yellow-50 to-white"
-                  : i === 1
-                  ? "bg-gradient-to-r from-slate-100 to-white"
-                  : i === 2
-                  ? "bg-gradient-to-r from-amber-50 to-white"
-                  : ""
-              }`}
+                layout
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                }}
+                className={`
+                  transition-colors
+                  hover:bg-slate-50
+                  ${
+                    i === 0
+                      ? "bg-gradient-to-r from-yellow-50 to-white"
+                      : i === 1
+                      ? "bg-gradient-to-r from-slate-100 to-white"
+                      : i === 2
+                      ? "bg-gradient-to-r from-amber-50 to-white"
+                      : ""
+                  }
+                `}
               >
                 {/* Rank */}
                 <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-xs font-bold
-                ${
-                  i === 0
-                    ? "bg-yellow-300 text-yellow-900 shadow"
-                    : i === 1
-                    ? "bg-slate-300 text-slate-800"
-                    : i === 2
-                    ? "bg-amber-200 text-amber-800"
-                    : "bg-slate-100 text-slate-600"
-                }`}
+                  <motion.span
+                    key={i}
+                    initial={{ scale: 0.85 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.25 }}
+                    className={`
+                      inline-flex items-center justify-center
+                      w-9 h-9 rounded-full text-xs font-bold
+                      ${
+                        i === 0
+                          ? "bg-yellow-300 text-yellow-900 shadow-md"
+                          : i === 1
+                          ? "bg-slate-300 text-slate-800"
+                          : i === 2
+                          ? "bg-amber-200 text-amber-800"
+                          : "bg-slate-100 text-slate-600"
+                      }
+                    `}
                   >
                     {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                  </span>
+                  </motion.span>
                 </td>
 
                 {/* Participant */}
                 <td className="px-4 py-4">
-                  <div className="font-semibold text-slate-800 text-[16px] truncate max-w-[200px]">
+                  <div className="font-semibold text-slate-800 truncate max-w-[200px]">
                     {p.name}
                   </div>
                   <div className="text-xs text-slate-500">
@@ -334,35 +417,66 @@ p-8 shadow-lg animate-pulse"
 
                 {/* Net Worth */}
                 <td className="px-4 py-4 text-right">
-                  <div className="font-extrabold text-green-700 text-[17px] tabular-nums">
+                  <motion.div
+                    key={p.totalNetWorth}
+                    initial={{ opacity: 0.5, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.25 }}
+                    className="font-extrabold text-green-700 text-[17px] tabular-nums"
+                  >
                     ₹{p.totalNetWorth.toLocaleString()}
-                  </div>
+                  </motion.div>
                   <div className="text-xs text-slate-500">Net Worth</div>
                 </td>
-              </tr>
+              </motion.tr>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </AnimatePresence>
+        </tbody>
+      </table>
     </div>
-  );
+  </div>
+);
 
   const ShareGrid = () => (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
+    <motion.div
+    layout
+    className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4"
+  >
+    <AnimatePresence>
       {shares.map((s) => {
         const bid = (s.price * 0.98).toFixed(2);
         const ask = (s.price * 1.02).toFixed(2);
         const positive = s.change >= 0;
 
         return (
-          <div
+          <motion.div
             key={s._id}
-            className={`rounded-2xl border p-4 overflow-hidden transition-all duration-200 -translate-y-0.5 hover:-translate-y-1 hover:shadow-lg ${
+            layout
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -15, scale: 0.95 }}
+            transition={{
+              type: "spring",
+              stiffness: 260,
+              damping: 24,
+            }}
+            whileHover={{ y: -6 }}
+            className={`relative rounded-2xl border p-4 overflow-hidden shadow-sm ${
               positive
                 ? "bg-green-50 border-green-200"
                 : "bg-red-50 border-red-200"
             }`}
           >
+            {/* 🔔 Price flash overlay */}
+            <motion.div
+              key={s.price}
+              initial={{ opacity: 0.25 }}
+              animate={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
+              className={`absolute inset-0 pointer-events-none ${
+                positive ? "bg-green-300/20" : "bg-red-300/20"
+              }`}
+            />
             {/* Header */}
             <div className="flex justify-between items-start gap-2">
               <div className="min-w-0">
@@ -372,13 +486,17 @@ p-8 shadow-lg animate-pulse"
                 {/* <p className="text-xs text-slate-500">Market Price</p> */}
               </div>
 
-              <p
+              <motion.p
+                key={s.price}
+                initial={{ scale: 1.1, opacity: 0.6 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
                 className={`text-lg font-bold leading-tight whitespace-nowrap ${
                   positive ? "text-green-700" : "text-red-700"
                 }`}
               >
                 ₹{s.price.toFixed(2)}
-              </p>
+              </motion.p>
             </div>
 
             {/* Divider */}
@@ -400,10 +518,11 @@ p-8 shadow-lg animate-pulse"
                 </p>
               </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
-    </div>
+    </AnimatePresence>
+  </motion.div>
   );
 
   const isFullPage = view !== "auth";
@@ -562,7 +681,7 @@ p-8 shadow-lg animate-pulse"
           text-center
         "
                 >
-                  FBS Stock Market
+                  FOSTIIMA Stock Exchange
                 </CardTitle>
               </div>
             </div>
@@ -777,15 +896,24 @@ data-[state=active]:text-indigo-600"
                 </TabsContent>
               </Tabs>
             )}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={view}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+              >
+                {/* ② Market News */}
+                {view === "news" && <MarketNews />}
 
-            {/* ② Market News */}
-            {view === "news" && <MarketNews />}
+                {/* ③ Leaderboard */}
+                {view === "leaderboard" && <LiveLeaderboard />}
 
-            {/* ③ Leaderboard */}
-            {view === "leaderboard" && <LiveLeaderboard />}
-
-            {/* ④ Shares grid */}
-            {view === "shares" && <ShareGrid />}
+                {/* ④ Shares grid */}
+                {view === "shares" && <ShareGrid />}
+              </motion.div>
+            </AnimatePresence>
           </CardContent>
         </Card>
       </div>
