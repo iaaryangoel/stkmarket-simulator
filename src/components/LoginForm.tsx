@@ -226,58 +226,69 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   return (
     <div className="space-y-8">
       {/* 🔥 BREAKING NEWS */}
-      <motion.div
-        key={breaking._id}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          boxShadow: [
-            "0 0 0px rgba(239,68,68,0)",
-            "0 0 25px rgba(239,68,68,0.35)",
-            "0 0 0px rgba(239,68,68,0)",
-          ],
-        }}
-        transition={{
-          duration: 0.6,
-          boxShadow: {
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-        className="relative rounded-2xl border border-yellow-200 
-        bg-gradient-to-r from-yellow-50 to-yellow-100 
-        p-8 shadow-lg"
-      >
-        {/* LIVE badge */}
-        <motion.span
-          animate={{ opacity: [1, 0.4, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="absolute top-4 right-4 inline-flex items-center gap-2 
-          rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white"
-        >
-          🔥 BREAKING
-        </motion.span>
+<motion.div
+  key={breaking._id}
+  initial={{ opacity: 0, scale: 0.95 }}
+  animate={{
+    opacity: 1,
+    scale: 1,
+    boxShadow: [
+      "0 0 0px rgba(239,68,68,0)",
+      "0 0 25px rgba(239,68,68,0.35)",
+      "0 0 0px rgba(239,68,68,0)",
+    ],
+  }}
+  transition={{
+    duration: 0.6,
+    boxShadow: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut",
+    },
+  }}
+  className="relative rounded-2xl border border-yellow-200 
+  bg-gradient-to-r from-yellow-50 to-yellow-100 
+  p-6 sm:p-8 shadow-lg"
+>
+  {/* 🔴 BREAKING badge */}
+  <motion.span
+    animate={{ opacity: [1, 0.4, 1] }}
+    transition={{ duration: 1.5, repeat: Infinity }}
+    className="
+      inline-flex items-center gap-2 rounded-full 
+      bg-red-600 px-3 py-1 text-xs font-bold text-white
+      mb-3
+      sm:absolute sm:top-4 sm:right-4 sm:mb-0
+    "
+  >
+    🔥 BREAKING
+  </motion.span>
 
-        <motion.h3
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="text-lg sm:text-2xl font-bold text-slate-900 pr-20 sm:pr-36 leading-snug"
-        >
-          {breaking.headline}
-        </motion.h3>
+  {/* Headline */}
+  <motion.h3
+    initial={{ x: -20, opacity: 0 }}
+    animate={{ x: 0, opacity: 1 }}
+    transition={{ delay: 0.1 }}
+    className="
+      text-base sm:text-2xl 
+      font-bold text-slate-900 
+      leading-snug
+      sm:pr-36
+    "
+  >
+    {breaking.headline}
+  </motion.h3>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="mt-3 text-sm text-slate-600"
-        >
-          {new Date(breaking.timestamp).toLocaleString()}
-        </motion.p>
-      </motion.div>
+  {/* Timestamp */}
+  <motion.p
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ delay: 0.25 }}
+    className="mt-3 text-xs sm:text-sm text-slate-600"
+  >
+    {new Date(breaking.timestamp).toLocaleString()}
+  </motion.p>
+</motion.div>
 
       {/* 📰 OTHER MARKET NEWS */}
       {others.length > 0 && (

@@ -141,7 +141,7 @@ const ParticipantDashboard = ({ user }) => {
       className="space-y-6"
     >
       {/* Portfolio Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <motion.div
           variants={item}
           whileHover={{ scale: 1.01 }}
@@ -224,7 +224,7 @@ const ParticipantDashboard = ({ user }) => {
             {portfolio.holdings.length === 0 ? (
               <p className="text-gray-500">No holdings yet</p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="relative -mx-4 sm:mx-0 overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-slate-50 text-slate-600">
                     <tr className="bg-gradient-to-r from-blue-50 via-white to-blue-50 border-b hover:bg-slate-50 transition">
@@ -297,7 +297,7 @@ const ParticipantDashboard = ({ user }) => {
           </CardHeader>
 
           <CardContent>
-            <div className="grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* LEFT TABLE */}
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-slate-600">
@@ -492,16 +492,18 @@ const ParticipantDashboard = ({ user }) => {
                     }`}
                   >
                     {/* Headline row */}
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-semibold">{item.headline}</h4>
+                    <div className="flex flex-wrap items-start gap-2 mb-1">
+  <h4 className="font-semibold text-sm sm:text-base leading-snug">
+    {item.headline}
+  </h4>
 
-                      {/* 🔴 BREAKING badge ONLY for latest news */}
-                      {index === 0 && (
-                        <Badge className="bg-red-500 text-white text-xs">
-                          BREAKING
-                        </Badge>
-                      )}
-                    </div>
+  {index === 0 && (
+  <Badge className="bg-red-500 text-white text-[10px] sm:text-xs">
+    BREAKING
+  </Badge>
+)}
+
+</div>
 
                     {/* Timestamp */}
                     <p className="text-xs text-gray-500">
@@ -538,32 +540,35 @@ const ParticipantDashboard = ({ user }) => {
                   </thead>
                   <tbody>
                     {leaderboard.map((p, index) => (
-                      <tr
-                        key={index}
-                        className="border-b hover:bg-slate-50 transition"
-                      >
-                        <span
-                          className={`w-7 h-7 inline-flex items-center justify-center rounded-full text-xs font-bold
-  ${
-    index === 0
-      ? "bg-yellow-100 text-yellow-700"
-      : index === 1
-        ? "bg-slate-200 text-slate-700"
-        : index === 2
-          ? "bg-amber-100 text-amber-700"
-          : "bg-slate-100 text-slate-600"
-  }`}
-                        >
-                          {index + 1}
-                        </span>
+                      <tr className="border-b hover:bg-slate-50 transition">
+  <td className="p-2">
+    <span
+      className={`w-7 h-7 inline-flex items-center justify-center rounded-full text-xs font-bold
+        ${
+          index === 0
+            ? "bg-yellow-100 text-yellow-700"
+            : index === 1
+              ? "bg-slate-200 text-slate-700"
+              : index === 2
+                ? "bg-amber-100 text-amber-700"
+                : "bg-slate-100 text-slate-600"
+        }`}
+    >
+      {index + 1}
+    </span>
+  </td>
 
-                        <td className="p-2 font-medium">
-                          {p.name} ({p.participantId})
-                        </td>
-                        <td className="p-2 text-right">
-                          ₹{p.totalNetWorth.toLocaleString()}
-                        </td>
-                      </tr>
+  <td className="p-2 font-medium">
+    {p.name}
+    <div className="text-xs text-slate-500">
+      {p.participantId}
+    </div>
+  </td>
+
+  <td className="p-2 text-right">
+    ₹{p.totalNetWorth.toLocaleString()}
+  </td>
+</tr>
                     ))}
                   </tbody>
                 </table>
