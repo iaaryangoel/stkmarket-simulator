@@ -60,7 +60,7 @@ const ParticipantDashboard = ({ user }) => {
       setShares((prev) =>
         prev.some((s) => s._id === updatedShare._id)
           ? prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
-          : [...prev, updatedShare]
+          : [...prev, updatedShare],
       );
     });
 
@@ -238,7 +238,7 @@ const ParticipantDashboard = ({ user }) => {
                   <tbody>
                     {portfolio.holdings.map((holding, index) => {
                       const share = shares.find(
-                        (s) => s.name === holding.symbol
+                        (s) => s.name === holding.symbol,
                       );
                       const profitLoss = calculateProfitLoss(holding);
                       return (
@@ -493,17 +493,16 @@ const ParticipantDashboard = ({ user }) => {
                   >
                     {/* Headline row */}
                     <div className="flex flex-wrap items-start gap-2 mb-1">
-  <h4 className="font-semibold text-sm sm:text-base leading-snug">
-    {item.headline}
-  </h4>
+                      <h4 className="font-semibold text-sm sm:text-base leading-snug">
+                        {item.headline}
+                      </h4>
 
-  {index === 0 && (
-  <Badge className="bg-red-500 text-white text-[10px] sm:text-xs">
-    BREAKING
-  </Badge>
-)}
-
-</div>
+                      {index === 0 && (
+                        <Badge className="bg-red-500 text-white text-[10px] sm:text-xs">
+                          BREAKING
+                        </Badge>
+                      )}
+                    </div>
 
                     {/* Timestamp */}
                     <p className="text-xs text-gray-500">
@@ -541,9 +540,9 @@ const ParticipantDashboard = ({ user }) => {
                   <tbody>
                     {leaderboard.map((p, index) => (
                       <tr className="border-b hover:bg-slate-50 transition">
-  <td className="p-2">
-    <span
-      className={`w-7 h-7 inline-flex items-center justify-center rounded-full text-xs font-bold
+                        <td className="p-2">
+                          <span
+                            className={`w-7 h-7 inline-flex items-center justify-center rounded-full text-xs font-bold
         ${
           index === 0
             ? "bg-yellow-100 text-yellow-700"
@@ -553,22 +552,22 @@ const ParticipantDashboard = ({ user }) => {
                 ? "bg-amber-100 text-amber-700"
                 : "bg-slate-100 text-slate-600"
         }`}
-    >
-      {index + 1}
-    </span>
-  </td>
+                          >
+                            {index + 1}
+                          </span>
+                        </td>
 
-  <td className="p-2 font-medium">
-    {p.name}
-    <div className="text-xs text-slate-500">
-      {p.participantId}
-    </div>
-  </td>
+                        <td className="p-2 font-medium">
+                          {p.name}
+                          <div className="text-xs text-slate-500">
+                            {p.participantId}
+                          </div>
+                        </td>
 
-  <td className="p-2 text-right">
-    ₹{p.totalNetWorth.toLocaleString()}
-  </td>
-</tr>
+                        <td className="p-2 text-right">
+                          ₹{p.totalNetWorth.toLocaleString()}
+                        </td>
+                      </tr>
                     ))}
                   </tbody>
                 </table>
