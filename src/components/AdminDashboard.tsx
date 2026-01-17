@@ -137,7 +137,7 @@ const AdminDashboard = ({ user }) => {
 
     socket.on("share:update", (updatedShare: Share) => {
       setShares((prev) =>
-        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
+        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s)),
       );
     });
 

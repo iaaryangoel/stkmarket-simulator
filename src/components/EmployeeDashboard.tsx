@@ -34,17 +34,17 @@ interface User {
 
 const socket = io(import.meta.env.VITE_SOCKET_URL); // adjust for production
 const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15 },
-    },
-  };
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
 
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0 },
-  };
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 },
+};
 
 const EmployeeDashboard = ({ user }) => {
   const [shares, setShares] = useState<Share[]>([]);
@@ -77,7 +77,7 @@ const EmployeeDashboard = ({ user }) => {
       setShares((prev) =>
         prev.some((s) => s._id === updated._id)
           ? prev.map((s) => (s._id === updated._id ? updated : s))
-          : [...prev, updated]
+          : [...prev, updated],
       );
     });
     socket.on("share:add", (newShare) => {

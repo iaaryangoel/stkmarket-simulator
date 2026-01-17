@@ -83,15 +83,15 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
       setShares((prev) =>
         prev.some((s) => s._id === upd._id)
           ? prev.map((s) => (s._id === upd._id ? upd : s))
-          : [...prev, upd]
-      )
+          : [...prev, upd],
+      ),
     );
     socket.on("share:delete", (id: string) =>
-      setShares((prev) => prev.filter((s) => s._id !== id))
+      setShares((prev) => prev.filter((s) => s._id !== id)),
     );
     socket.on(
       "news:new",
-      (n: NewsItem) => setNews((prev) => [n, ...prev]) // newest on top
+      (n: NewsItem) => setNews((prev) => [n, ...prev]), // newest on top
     );
 
     return () => {
@@ -209,320 +209,331 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   /* ────────────────────────────────────────── */
 
   const MarketNews = () => {
-  if (news.length === 0) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="rounded-xl border bg-white p-5 text-center text-base text-slate-500"
-      >
-        No market news available yet 📰
-      </motion.div>
-    );
-  }
-
-  const [breaking, ...others] = news;
-
-  return (
-    <div className="space-y-8">
-      {/* 🔥 BREAKING NEWS */}
-      <motion.div
-        key={breaking._id}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          boxShadow: [
-            "0 0 0px rgba(239,68,68,0)",
-            "0 0 25px rgba(239,68,68,0.35)",
-            "0 0 0px rgba(239,68,68,0)",
-          ],
-        }}
-        transition={{
-          duration: 0.6,
-          boxShadow: {
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          },
-        }}
-        className="relative rounded-2xl border border-yellow-200 
-        bg-gradient-to-r from-yellow-50 to-yellow-100 
-        p-8 shadow-lg"
-      >
-        {/* LIVE badge */}
-        <motion.span
-          animate={{ opacity: [1, 0.4, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="absolute top-4 right-4 inline-flex items-center gap-2 
-          rounded-full bg-red-600 px-4 py-1.5 text-sm font-bold text-white"
-        >
-          🔥 BREAKING
-        </motion.span>
-
-        <motion.h3
-          initial={{ x: -20, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          className="text-lg sm:text-2xl font-bold text-slate-900 pr-20 sm:pr-36 leading-snug"
-        >
-          {breaking.headline}
-        </motion.h3>
-
-        <motion.p
+    if (news.length === 0) {
+      return (
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.25 }}
-          className="mt-3 text-sm text-slate-600"
+          className="rounded-xl border bg-white p-5 text-center text-base text-slate-500"
         >
-          {new Date(breaking.timestamp).toLocaleString()}
-        </motion.p>
-      </motion.div>
-
-      {/* 📰 OTHER MARKET NEWS */}
-      {others.length > 0 && (
-        <motion.div
-          layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          <AnimatePresence>
-            {others.map((n) => (
-              <motion.div
-                key={n._id}
-                layout
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{
-                  duration: 0.35,
-                  ease: "easeOut",
-                }}
-                className="rounded-xl border bg-white p-5 shadow-sm 
-                transition-all duration-300 hover:shadow-md hover:-translate-y-1"
-              >
-                <h4 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
-                  {n.headline}
-                </h4>
-
-                <p className="mt-3 text-sm text-slate-500">
-                  {new Date(n.timestamp).toLocaleString()}
-                </p>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          No market news available yet 📰
         </motion.div>
-      )}
-    </div>
-  );
-};
+      );
+    }
+
+    const [breaking, ...others] = news;
+
+    return (
+      <div className="space-y-8">
+        {/* 🔥 BREAKING NEWS */}
+        <motion.div
+          key={breaking._id}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{
+            opacity: 1,
+            scale: 1,
+            boxShadow: [
+              "0 0 0px rgba(239,68,68,0)",
+              "0 0 25px rgba(239,68,68,0.35)",
+              "0 0 0px rgba(239,68,68,0)",
+            ],
+          }}
+          transition={{
+            duration: 0.6,
+            boxShadow: {
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            },
+          }}
+          className="relative rounded-2xl border border-yellow-200 
+  bg-gradient-to-r from-yellow-50 to-yellow-100 
+  p-6 sm:p-8 shadow-lg"
+        >
+          {/* 🔴 BREAKING badge */}
+          <motion.span
+            animate={{ opacity: [1, 0.4, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="
+      inline-flex items-center gap-2 rounded-full 
+      bg-red-600 px-3 py-1 text-xs font-bold text-white
+      mb-3
+      sm:absolute sm:top-4 sm:right-4 sm:mb-0
+    "
+          >
+            🔥 BREAKING
+          </motion.span>
+
+          {/* Headline */}
+          <motion.h3
+            initial={{ x: -20, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="
+      text-base sm:text-2xl 
+      font-bold text-slate-900 
+      leading-snug
+      sm:pr-36
+    "
+          >
+            {breaking.headline}
+          </motion.h3>
+
+          {/* Timestamp */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+            className="mt-3 text-xs sm:text-sm text-slate-600"
+          >
+            {new Date(breaking.timestamp).toLocaleString()}
+          </motion.p>
+        </motion.div>
+
+        {/* 📰 OTHER MARKET NEWS */}
+        {others.length > 0 && (
+          <motion.div
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+          >
+            <AnimatePresence>
+              {others.map((n) => (
+                <motion.div
+                  key={n._id}
+                  layout
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.35,
+                    ease: "easeOut",
+                  }}
+                  className="rounded-xl border bg-white p-5 shadow-sm 
+                transition-all duration-300 hover:shadow-md hover:-translate-y-1"
+                >
+                  <h4 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
+                    {n.headline}
+                  </h4>
+
+                  <p className="mt-3 text-sm text-slate-500">
+                    {new Date(n.timestamp).toLocaleString()}
+                  </p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </div>
+    );
+  };
 
   const LiveLeaderboard = () => (
-  <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
-    {/* Header */}
-    <div className="px-6 py-5 border-b bg-gradient-to-r from-[#F5F2FF] to-white flex items-center justify-between">
-      <div>
-        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          🏆 Live Leaderboard
-          <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
-            LIVE
-          </span>
-        </h2>
-        <p className="text-xs text-slate-500">
-          Rankings based on total net worth
-        </p>
+    <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-5 border-b bg-gradient-to-r from-[#F5F2FF] to-white flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            🏆 Live Leaderboard
+            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
+              LIVE
+            </span>
+          </h2>
+          <p className="text-xs text-slate-500">
+            Rankings based on total net worth
+          </p>
+        </div>
       </div>
-    </div>
 
-    {/* Table */}
-    <div className="overflow-x-auto">
-      <table className="min-w-[520px] w-full text-sm">
-        <thead className="bg-slate-50">
-          <tr className="text-slate-600">
-            <th className="px-6 py-3 text-left font-medium">Rank</th>
-            <th className="px-6 py-3 text-left font-medium">Participant</th>
-            <th className="px-6 py-3 text-right font-medium">Net Worth</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y">
-          {leaderboard.length === 0 && (
-            <tr>
-              <td colSpan={3} className="p-8 text-center text-slate-500">
-                No leaderboard data available yet 🚀
-              </td>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-[520px] w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr className="text-slate-600">
+              <th className="px-6 py-3 text-left font-medium">Rank</th>
+              <th className="px-6 py-3 text-left font-medium">Participant</th>
+              <th className="px-6 py-3 text-right font-medium">Net Worth</th>
             </tr>
-          )}
+          </thead>
 
-          <AnimatePresence initial={false}>
-            {leaderboard.slice(0, 10).map((p, i) => (
-              <motion.tr
-                key={p.participantId}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                }}
-                className={`
+          <tbody className="divide-y">
+            {leaderboard.length === 0 && (
+              <tr>
+                <td colSpan={3} className="p-8 text-center text-slate-500">
+                  No leaderboard data available yet 🚀
+                </td>
+              </tr>
+            )}
+
+            <AnimatePresence initial={false}>
+              {leaderboard.slice(0, 10).map((p, i) => (
+                <motion.tr
+                  key={p.participantId}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
+                    damping: 30,
+                  }}
+                  className={`
                   transition-colors
                   hover:bg-slate-50
                   ${
                     i === 0
                       ? "bg-gradient-to-r from-yellow-50 to-white"
                       : i === 1
-                      ? "bg-gradient-to-r from-slate-100 to-white"
-                      : i === 2
-                      ? "bg-gradient-to-r from-amber-50 to-white"
-                      : ""
+                        ? "bg-gradient-to-r from-slate-100 to-white"
+                        : i === 2
+                          ? "bg-gradient-to-r from-amber-50 to-white"
+                          : ""
                   }
                 `}
-              >
-                {/* Rank */}
-                <td className="px-6 py-4">
-                  <motion.span
-                    key={i}
-                    initial={{ scale: 0.85 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className={`
+                >
+                  {/* Rank */}
+                  <td className="px-6 py-4">
+                    <motion.span
+                      key={i}
+                      initial={{ scale: 0.85 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.25 }}
+                      className={`
                       inline-flex items-center justify-center
                       w-9 h-9 rounded-full text-xs font-bold
                       ${
                         i === 0
                           ? "bg-yellow-300 text-yellow-900 shadow-md"
                           : i === 1
-                          ? "bg-slate-300 text-slate-800"
-                          : i === 2
-                          ? "bg-amber-200 text-amber-800"
-                          : "bg-slate-100 text-slate-600"
+                            ? "bg-slate-300 text-slate-800"
+                            : i === 2
+                              ? "bg-amber-200 text-amber-800"
+                              : "bg-slate-100 text-slate-600"
                       }
                     `}
-                  >
-                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                  </motion.span>
-                </td>
+                    >
+                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                    </motion.span>
+                  </td>
 
-                {/* Participant */}
-                <td className="px-4 py-4">
-                  <div className="font-semibold text-slate-800 truncate max-w-[200px]">
-                    {p.name}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    ID: {p.participantId}
-                  </div>
-                </td>
+                  {/* Participant */}
+                  <td className="px-4 py-4">
+                    <div className="font-semibold text-slate-800 truncate max-w-[200px]">
+                      {p.name}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      ID: {p.participantId}
+                    </div>
+                  </td>
 
-                {/* Net Worth */}
-                <td className="px-4 py-4 text-right">
-                  <motion.div
-                    key={p.totalNetWorth}
-                    initial={{ opacity: 0.5, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.25 }}
-                    className="font-extrabold text-green-700 text-[17px] tabular-nums"
-                  >
-                    ₹{p.totalNetWorth.toLocaleString()}
-                  </motion.div>
-                  <div className="text-xs text-slate-500">Net Worth</div>
-                </td>
-              </motion.tr>
-            ))}
-          </AnimatePresence>
-        </tbody>
-      </table>
+                  {/* Net Worth */}
+                  <td className="px-4 py-4 text-right">
+                    <motion.div
+                      key={p.totalNetWorth}
+                      initial={{ opacity: 0.5, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.25 }}
+                      className="font-extrabold text-green-700 text-[17px] tabular-nums"
+                    >
+                      ₹{p.totalNetWorth.toLocaleString()}
+                    </motion.div>
+                    <div className="text-xs text-slate-500">Net Worth</div>
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-);
+  );
 
   const ShareGrid = () => (
     <motion.div
-    layout
-    className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4"
-  >
-    <AnimatePresence>
-      {shares.map((s) => {
-        const bid = (s.price * 0.98).toFixed(2);
-        const ask = (s.price * 1.02).toFixed(2);
-        const positive = s.change >= 0;
+      layout
+      className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4"
+    >
+      <AnimatePresence>
+        {shares.map((s) => {
+          const bid = (s.price * 0.98).toFixed(2);
+          const ask = (s.price * 1.02).toFixed(2);
+          const positive = s.change >= 0;
 
-        return (
-          <motion.div
-            key={s._id}
-            layout
-            initial={{ opacity: 0, y: 20, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -15, scale: 0.95 }}
-            transition={{
-              type: "spring",
-              stiffness: 260,
-              damping: 24,
-            }}
-            whileHover={{ y: -6 }}
-            className={`relative rounded-2xl border p-4 overflow-hidden shadow-sm ${
-              positive
-                ? "bg-green-50 border-green-200"
-                : "bg-red-50 border-red-200"
-            }`}
-          >
-            {/* 🔔 Price flash overlay */}
+          return (
             <motion.div
-              key={s.price}
-              initial={{ opacity: 0.25 }}
-              animate={{ opacity: 0 }}
-              transition={{ duration: 0.6 }}
-              className={`absolute inset-0 pointer-events-none ${
-                positive ? "bg-green-300/20" : "bg-red-300/20"
+              key={s._id}
+              layout
+              initial={{ opacity: 0, y: 20, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -15, scale: 0.95 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 24,
+              }}
+              whileHover={{ y: -6 }}
+              className={`relative rounded-2xl border p-4 overflow-hidden shadow-sm ${
+                positive
+                  ? "bg-green-50 border-green-200"
+                  : "bg-red-50 border-red-200"
               }`}
-            />
-            {/* Header */}
-            <div className="flex justify-between items-start gap-2">
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-slate-700 truncate">
-                  {s.name}
-                </p>
-                {/* <p className="text-xs text-slate-500">Market Price</p> */}
-              </div>
-
-              <motion.p
+            >
+              {/* 🔔 Price flash overlay */}
+              <motion.div
                 key={s.price}
-                initial={{ scale: 1.1, opacity: 0.6 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.3 }}
-                className={`text-lg font-bold leading-tight whitespace-nowrap ${
-                  positive ? "text-green-700" : "text-red-700"
+                initial={{ opacity: 0.25 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.6 }}
+                className={`absolute inset-0 pointer-events-none ${
+                  positive ? "bg-green-300/20" : "bg-red-300/20"
                 }`}
-              >
-                ₹{s.price.toFixed(2)}
-              </motion.p>
-            </div>
+              />
+              {/* Header */}
+              <div className="flex justify-between items-start gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-slate-700 truncate">
+                    {s.name}
+                  </p>
+                  {/* <p className="text-xs text-slate-500">Market Price</p> */}
+                </div>
 
-            {/* Divider */}
-            <div className="h-px bg-slate-200 my-3" />
-
-            {/* Bid / Ask */}
-            <div className="flex gap-2">
-              <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
-                <p className="text-[11px] text-slate-500">Bid</p>
-                <p className="text-sm font-semibold text-slate-800 truncate">
-                  ₹{bid}
-                </p>
+                <motion.p
+                  key={s.price}
+                  initial={{ scale: 1.1, opacity: 0.6 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={`text-lg font-bold leading-tight whitespace-nowrap ${
+                    positive ? "text-green-700" : "text-red-700"
+                  }`}
+                >
+                  ₹{s.price.toFixed(2)}
+                </motion.p>
               </div>
 
-              <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
-                <p className="text-[11px] text-slate-500">Ask</p>
-                <p className="text-sm font-semibold text-slate-800 truncate">
-                  ₹{ask}
-                </p>
+              {/* Divider */}
+              <div className="h-px bg-slate-200 my-3" />
+
+              {/* Bid / Ask */}
+              <div className="flex gap-2">
+                <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
+                  <p className="text-[11px] text-slate-500">Bid</p>
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    ₹{bid}
+                  </p>
+                </div>
+
+                <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
+                  <p className="text-[11px] text-slate-500">Ask</p>
+                  <p className="text-sm font-semibold text-slate-800 truncate">
+                    ₹{ask}
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        );
-      })}
-    </AnimatePresence>
-  </motion.div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    </motion.div>
   );
 
   const isFullPage = view !== "auth";
