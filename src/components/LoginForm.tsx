@@ -191,19 +191,6 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
     }
   };
 
-  /* ───────────────────── Animated Views ───────────────────── */
-
-  const AnimatedView = ({ children }: { children: React.ReactNode }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
-    >
-      {children}
-    </motion.div>
-  );
-
   /* ────────────────────────────────────────── */
   /*            SMALL REUSABLE VIEWS           */
   /* ────────────────────────────────────────── */
@@ -211,13 +198,9 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   const MarketNews = () => {
     if (news.length === 0) {
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="rounded-xl border bg-white p-5 text-center text-base text-slate-500"
-        >
+        <div className="rounded-xl border bg-gradient-to-br from-slate-50 to-slate-100 p-5 text-center text-base text-slate-500 shadow-sm">
           No market news available yet 📰
-        </motion.div>
+        </div>
       );
     }
 
@@ -226,102 +209,75 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
     return (
       <div className="space-y-8">
         {/* 🔥 BREAKING NEWS */}
-        <motion.div
-          key={breaking._id}
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{
-            opacity: 1,
-            scale: 1,
-            boxShadow: [
-              "0 0 0px rgba(239,68,68,0)",
-              "0 0 25px rgba(239,68,68,0.35)",
-              "0 0 0px rgba(239,68,68,0)",
-            ],
-          }}
-          transition={{
-            duration: 0.6,
-            boxShadow: {
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            },
-          }}
-          className="relative rounded-2xl border border-yellow-200 
-  bg-gradient-to-r from-yellow-50 to-yellow-100 
-  p-6 sm:p-8 shadow-lg"
+        <div
+          className="
+    relative rounded-2xl border p-6 sm:p-8 overflow-hidden
+    border-red-500/60
+    bg-gradient-to-br from-red-200/40 via-red-100/20 to-red-300/30
+    shadow-lg
+  "
         >
-          {/* 🔴 BREAKING badge */}
-          <motion.span
-            animate={{ opacity: [1, 0.4, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
+          {/* 🔆 Inner glow */}
+          <div
+            className="absolute inset-0 pointer-events-none rounded-2xl
+    bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.35),transparent_60%)]
+  "
+          />
+
+          {/* 🔴 BREAKING badge (STATIC) */}
+          <span
             className="
-      inline-flex items-center gap-2 rounded-full 
+      inline-flex items-center gap-2 rounded-full
       bg-red-600 px-3 py-1 text-xs font-bold text-white
       mb-3
       sm:absolute sm:top-4 sm:right-4 sm:mb-0
+      shadow-md
     "
           >
             🔥 BREAKING
-          </motion.span>
+          </span>
 
           {/* Headline */}
-          <motion.h3
-            initial={{ x: -20, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            transition={{ delay: 0.1 }}
-            className="
-      text-base sm:text-2xl 
-      font-bold text-slate-900 
-      leading-snug
-      sm:pr-36
-    "
-          >
+          <h3 className="relative text-base sm:text-2xl font-bold text-slate-900 leading-snug sm:pr-36">
             {breaking.headline}
-          </motion.h3>
+          </h3>
 
           {/* Timestamp */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.25 }}
-            className="mt-3 text-xs sm:text-sm text-slate-600"
-          >
+          <p className="relative mt-3 text-xs sm:text-sm text-slate-700">
             {new Date(breaking.timestamp).toLocaleString()}
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
 
         {/* 📰 OTHER MARKET NEWS */}
         {others.length > 0 && (
-          <motion.div
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-          >
-            <AnimatePresence>
-              {others.map((n) => (
-                <motion.div
-                  key={n._id}
-                  layout
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{
-                    duration: 0.35,
-                    ease: "easeOut",
-                  }}
-                  className="rounded-xl border bg-white p-5 shadow-sm 
-                transition-all duration-300 hover:shadow-md hover:-translate-y-1"
-                >
-                  <h4 className="text-base font-semibold text-slate-900 leading-snug line-clamp-2">
-                    {n.headline}
-                  </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {others.map((n) => (
+              <div
+                key={n._id}
+                className="
+                relative rounded-xl border p-5 overflow-hidden
+                bg-gradient-to-br from-slate-50 to-slate-100
+                shadow-sm transition-all duration-200
+                hover:-translate-y-1 hover:shadow-md
+              "
+              >
+                {/* subtle hover glow */}
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-0 hover:opacity-100 transition
+                bg-[radial-gradient(circle_at_top_left,rgba(99,102,241,0.15),transparent_60%)]
+              "
+                />
 
-                  <p className="mt-3 text-sm text-slate-500">
-                    {new Date(n.timestamp).toLocaleString()}
-                  </p>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
+                <h4 className="relative text-base font-semibold text-slate-900 leading-snug line-clamp-2">
+                  {n.headline}
+                </h4>
+
+                <p className="relative mt-3 text-sm text-slate-500">
+                  {new Date(n.timestamp).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
         )}
       </div>
     );
@@ -334,7 +290,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
         <div>
           <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
             🏆 Live Leaderboard
-            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700 animate-pulse">
+            <span className="ml-2 px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">
               LIVE
             </span>
           </h2>
@@ -364,84 +320,63 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
               </tr>
             )}
 
-            <AnimatePresence initial={false}>
-              {leaderboard.slice(0, 10).map((p, i) => (
-                <motion.tr
-                  key={p.participantId}
-                  layout
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 30,
-                  }}
-                  className={`
-                  transition-colors
-                  hover:bg-slate-50
-                  ${
-                    i === 0
-                      ? "bg-gradient-to-r from-yellow-50 to-white"
-                      : i === 1
-                        ? "bg-gradient-to-r from-slate-100 to-white"
-                        : i === 2
-                          ? "bg-gradient-to-r from-amber-50 to-white"
-                          : ""
-                  }
-                `}
-                >
-                  {/* Rank */}
-                  <td className="px-6 py-4">
-                    <motion.span
-                      key={i}
-                      initial={{ scale: 0.85 }}
-                      animate={{ scale: 1 }}
-                      transition={{ duration: 0.25 }}
-                      className={`
-                      inline-flex items-center justify-center
-                      w-9 h-9 rounded-full text-xs font-bold
-                      ${
-                        i === 0
-                          ? "bg-yellow-300 text-yellow-900 shadow-md"
-                          : i === 1
-                            ? "bg-slate-300 text-slate-800"
-                            : i === 2
-                              ? "bg-amber-200 text-amber-800"
-                              : "bg-slate-100 text-slate-600"
-                      }
-                    `}
-                    >
-                      {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
-                    </motion.span>
-                  </td>
+            {leaderboard.slice(0, 10).map((p, i) => (
+              <tr
+                key={p.participantId}
+                className={`
+                transition-all duration-200
+                hover:bg-slate-50
+                ${
+                  i === 0
+                    ? "bg-gradient-to-r from-yellow-100/60 to-white"
+                    : i === 1
+                      ? "bg-gradient-to-r from-slate-100/80 to-white"
+                      : i === 2
+                        ? "bg-gradient-to-r from-amber-100/60 to-white"
+                        : ""
+                }
+              `}
+              >
+                {/* Rank */}
+                <td className="px-6 py-4">
+                  <span
+                    className={`
+                    inline-flex items-center justify-center
+                    w-9 h-9 rounded-full text-xs font-bold
+                    ${
+                      i === 0
+                        ? "bg-yellow-300 text-yellow-900 shadow-md"
+                        : i === 1
+                          ? "bg-slate-300 text-slate-800"
+                          : i === 2
+                            ? "bg-amber-200 text-amber-800"
+                            : "bg-slate-100 text-slate-600"
+                    }
+                  `}
+                  >
+                    {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : i + 1}
+                  </span>
+                </td>
 
-                  {/* Participant */}
-                  <td className="px-4 py-4">
-                    <div className="font-semibold text-slate-800 truncate max-w-[200px]">
-                      {p.name}
-                    </div>
-                    <div className="text-xs text-slate-500">
-                      ID: {p.participantId}
-                    </div>
-                  </td>
+                {/* Participant */}
+                <td className="px-4 py-4">
+                  <div className="font-semibold text-slate-800 truncate max-w-[200px]">
+                    {p.name}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    ID: {p.participantId}
+                  </div>
+                </td>
 
-                  {/* Net Worth */}
-                  <td className="px-4 py-4 text-right">
-                    <motion.div
-                      key={p.totalNetWorth}
-                      initial={{ opacity: 0.5, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.25 }}
-                      className="font-extrabold text-green-700 text-[17px] tabular-nums"
-                    >
-                      ₹{p.totalNetWorth.toLocaleString()}
-                    </motion.div>
-                    <div className="text-xs text-slate-500">Net Worth</div>
-                  </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+                {/* Net Worth */}
+                <td className="px-4 py-4 text-right">
+                  <div className="font-extrabold text-green-700 text-[17px] tabular-nums">
+                    ₹{p.totalNetWorth.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-slate-500">Net Worth</div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -449,91 +384,89 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
   );
 
   const ShareGrid = () => (
-    <motion.div
-      layout
-      className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4"
-    >
-      <AnimatePresence>
-        {shares.map((s) => {
-          const bid = (s.price * 0.98).toFixed(2);
-          const ask = (s.price * 1.02).toFixed(2);
-          const positive = s.change >= 0;
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-4">
+      {shares.map((s) => {
+        const bid = (s.price * 0.98).toFixed(2);
+        const ask = (s.price * 1.02).toFixed(2);
+        const positive = s.change >= 0;
 
-          return (
-            <motion.div
-              key={s._id}
-              layout
-              initial={{ opacity: 0, y: 20, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -15, scale: 0.95 }}
-              transition={{
-                type: "spring",
-                stiffness: 260,
-                damping: 24,
-              }}
-              whileHover={{ y: -6 }}
-              className={`relative rounded-2xl border p-4 overflow-hidden shadow-sm ${
+        return (
+          <div
+            key={s._id}
+            className={`
+            relative rounded-2xl border p-4 overflow-hidden
+            shadow-md transition-all duration-200
+            hover:-translate-y-1 hover:shadow-lg
+            ${
+              positive
+                ? `
+                  border-green-400/60
+                  bg-gradient-to-br
+                  from-green-400/30
+                  via-green-300/10
+                  to-green-500/20
+                `
+                : `
+                  border-red-400/60
+                  bg-gradient-to-br
+                  from-red-400/30
+                  via-red-300/10
+                  to-red-500/20
+                `
+            }
+          `}
+          >
+            {/* 🔆 Inner glow for live-market feel */}
+            <div
+              className={`absolute inset-0 rounded-2xl pointer-events-none
+              ${
                 positive
-                  ? "bg-green-50 border-green-200"
-                  : "bg-red-50 border-red-200"
-              }`}
-            >
-              {/* 🔔 Price flash overlay */}
-              <motion.div
-                key={s.price}
-                initial={{ opacity: 0.25 }}
-                animate={{ opacity: 0 }}
-                transition={{ duration: 0.6 }}
-                className={`absolute inset-0 pointer-events-none ${
-                  positive ? "bg-green-300/20" : "bg-red-300/20"
+                  ? "bg-[radial-gradient(circle_at_top_left,rgba(34,197,94,0.25),transparent_60%)]"
+                  : "bg-[radial-gradient(circle_at_top_left,rgba(239,68,68,0.25),transparent_60%)]"
+              }
+            `}
+            />
+
+            {/* Header */}
+            <div className="relative flex justify-between items-start gap-2">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-slate-800 truncate">
+                  {s.name}
+                </p>
+              </div>
+
+              <p
+                className={`text-lg font-bold leading-tight whitespace-nowrap ${
+                  positive ? "text-green-700" : "text-red-700"
                 }`}
-              />
-              {/* Header */}
-              <div className="flex justify-between items-start gap-2">
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold text-slate-700 truncate">
-                    {s.name}
-                  </p>
-                  {/* <p className="text-xs text-slate-500">Market Price</p> */}
-                </div>
+              >
+                ₹{s.price.toFixed(2)}
+              </p>
+            </div>
 
-                <motion.p
-                  key={s.price}
-                  initial={{ scale: 1.1, opacity: 0.6 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                  className={`text-lg font-bold leading-tight whitespace-nowrap ${
-                    positive ? "text-green-700" : "text-red-700"
-                  }`}
-                >
-                  ₹{s.price.toFixed(2)}
-                </motion.p>
+            {/* Divider */}
+            <div className="relative h-px bg-slate-300/50 my-3" />
+
+            {/* Bid / Ask */}
+            <div className="relative flex gap-2">
+              <div className="flex-1 rounded-xl bg-white/60 backdrop-blur px-2 py-2 text-center shadow-inner">
+                <p className="text-[11px] text-slate-500">Bid</p>
+                <p className="text-sm font-semibold text-slate-800 truncate">
+                  ₹{bid}
+                </p>
               </div>
 
-              {/* Divider */}
-              <div className="h-px bg-slate-200 my-3" />
-
-              {/* Bid / Ask */}
-              <div className="flex gap-2">
-                <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
-                  <p className="text-[11px] text-slate-500">Bid</p>
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    ₹{bid}
-                  </p>
-                </div>
-
-                <div className="flex-1 rounded-xl bg-white px-2 py-2 text-center shadow-sm">
-                  <p className="text-[11px] text-slate-500">Ask</p>
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    ₹{ask}
-                  </p>
-                </div>
+              <div className="flex-1 rounded-xl bg-white/60 backdrop-blur px-2 py-2 text-center shadow-inner">
+                <p className="text-[11px] text-slate-500">Ask</p>
+                <p className="text-sm font-semibold text-slate-800 truncate">
+                  ₹{ask}
+                </p>
               </div>
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-    </motion.div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 
   const isFullPage = view !== "auth";
