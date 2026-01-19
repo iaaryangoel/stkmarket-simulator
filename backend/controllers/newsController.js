@@ -10,7 +10,7 @@ exports.setIO = (io) => {
 
 /* helper: push one ±3 % step & broadcast */
 const stepMove = async (share, isPos) => {
-  const delta = +(share.price * 0.03).toFixed(2);
+  const delta = +(share.price * 0.0025).toFixed(2);
   const signed = isPos ? delta : -delta;
 
   share.price = +(share.price + signed).toFixed(2);
@@ -37,14 +37,19 @@ exports.createNews = async (req, res) => {
 
   const isPositive = sentiment === "positive";
   const steps = impact; // 1..5
-  const intervalMs = 0.5 * 60_000; // 0.5 minutes
+  const PRICE_STEP_INTERVAL_SEC = 10;
+  const intervalMs = PRICE_STEP_INTERVAL_SEC * 1000;
 
   for (const name of affectedShares) {
     const share = await Share.findOne({ name });
     if (!share) continue;
 
     /* lock while steps run */
-    share.lockedUntil = new Date(Date.now() + (steps - 1) * intervalMs);
+    const PER_IMPACT_DELAY_SEC = 30;
+    const totalLockMs = steps * PER_IMPACT_DELAY_SEC * 1000;
+
+    share.lockedUntil = new Date(Date.now() + totalLockMs);
+
     await share.save();
 
     if (ioInstance) {
@@ -72,6 +77,17 @@ exports.createNews = async (req, res) => {
 exports.getNews = async (_, res) =>
   res.json(await News.find().sort({ timestamp: -1 }));
 exports.deleteNews = async (req, res) => {
-  await News.findByIdAndDelete(req.params.id);
-  res.json({ msg: "News deleted" });
+  const deleted = await News.findByIdAndDelete(req.params.id);
+
+  if (!deleted) {
+    return res.status(404).json({ msg: "News not found" });
+  }
+
+  // 🔥 realtime delete broadcast
+  if (ioInstance) {
+    ioInstance.emit("news:delete", deleted._id);
+  }
+
+  res.json({ success: true });
 };
+

@@ -64,6 +64,20 @@ const ParticipantDashboard = ({ user }) => {
       );
     });
 
+    socket.on("user:update", (updatedUsers) => {
+      const me = updatedUsers.find((u) => u._id === user._id);
+      if (!me) return;
+
+      // Update portfolio instantly
+      setPortfolio({
+        balance: me.balance,
+        holdings: me.holdings,
+      });
+
+      // Update recent trades also
+      setTrades(me.trades || []);
+    });
+
     socket.on("share:delete", (id) => {
       setShares((prev) => prev.filter((s) => s._id !== id));
     });
@@ -79,6 +93,18 @@ const ParticipantDashboard = ({ user }) => {
     socket.on("market:status", ({ running }) => {
       toast({
         title: running ? "📊 Market Resumed" : "⛔ Market Paused",
+      });
+    });
+
+    socket.on("news:delete", (deletedId) => {
+      setNews((prev) => {
+        if (!Array.isArray(prev)) return [];
+        return prev.filter((n) => n._id !== deletedId);
+      });
+
+      toast({
+        title: "🗑️ News Removed",
+        description: "A news item was removed by admin",
       });
     });
 
@@ -100,7 +126,9 @@ const ParticipantDashboard = ({ user }) => {
       socket.off("share:delete");
       socket.off("share:add");
       socket.off("news:new");
+      socket.off("news:delete"); 
       socket.off("market:status");
+      socket.off("user:update"); // 👈 ADD THIS
     };
   }, [user]);
 
@@ -148,8 +176,12 @@ const ParticipantDashboard = ({ user }) => {
           transition={{ type: "spring", stiffness: 120 }}
         >
           <Card
-            className="rounded-2xl shadow-lg bg-gradient-to-br from-orange-50 to-white"
-            style={{ boxShadow: "0 10px 40px rgba(160, 100, 255, 0.3)" }}
+            className="
+    relative overflow-hidden rounded-2xl border
+    bg-gradient-to-br from-orange-950/90 via-orange-900 to-slate-900
+    text-orange-100
+    shadow-[0_0_30px_rgba(251,146,60,0.35)]
+  "
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="border-t-4 border-orange-500">
@@ -170,8 +202,12 @@ const ParticipantDashboard = ({ user }) => {
           transition={{ type: "spring", stiffness: 120 }}
         >
           <Card
-            className="rounded-2xl shadow-md border-t-4 border-blue-500"
-            style={{ boxShadow: "0 10px 40px rgba(160, 100, 255, 0.3)" }}
+            className="
+    relative overflow-hidden rounded-2xl border
+    bg-gradient-to-br from-emerald-950/90 via-emerald-900 to-slate-900
+    text-emerald-100
+    shadow-[0_0_30px_rgba(16,185,129,0.35)]
+  "
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="border-t-4 border-emerald-500">
@@ -192,8 +228,12 @@ const ParticipantDashboard = ({ user }) => {
           transition={{ type: "spring", stiffness: 120 }}
         >
           <Card
-            className="rounded-2xl shadow-md border-t-4 border-blue-500"
-            style={{ boxShadow: "0 10px 40px rgba(160, 100, 255, 0.3)" }}
+            className="
+    relative overflow-hidden rounded-2xl border
+    bg-gradient-to-br from-purple-950/90 via-purple-900 to-slate-900
+    text-purple-100
+    shadow-[0_0_30px_rgba(168,85,247,0.35)]
+  "
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="border-t-4 border-purple-500">
@@ -266,11 +306,13 @@ const ParticipantDashboard = ({ user }) => {
                               initial={{ scale: 1.2 }}
                               animate={{ scale: 1 }}
                               transition={{ duration: 0.3 }}
-                              className={`px-2 py-0.5 rounded text-xs font-semibold ${
-                                profitLoss >= 0
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-2 py-0.5 rounded text-xs font-semibold
+  ${
+    profitLoss >= 0
+      ? "bg-green-950/60 text-green-300 shadow-[0_0_12px_rgba(34,197,94,0.5)]"
+      : "bg-red-950/60 text-red-300 shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+  }
+`}
                             >
                               ₹{profitLoss.toFixed(2)}
                             </motion.span>
@@ -309,7 +351,18 @@ const ParticipantDashboard = ({ user }) => {
                 </thead>
                 <tbody>
                   {leftShares.map((share) => (
-                    <tr key={share._id} className="border-b h-8">
+                    <tr
+                      key={share._id}
+                      className={`
+    border-b h-8
+    ${
+      share.change >= 0
+        ? "bg-gradient-to-r from-green-950/40 via-transparent to-transparent"
+        : "bg-gradient-to-r from-red-950/40 via-transparent to-transparent"
+    }
+    hover:bg-slate-800/40 transition
+  `}
+                    >
                       <td className="px-2 py-1 font-medium">{share.name}</td>
                       <motion.td
                         key={share.price}
@@ -360,7 +413,18 @@ const ParticipantDashboard = ({ user }) => {
                 </thead>
                 <tbody>
                   {rightShares.map((share) => (
-                    <tr key={share._id} className="border-b h-8">
+                    <tr
+                      key={share._id}
+                      className={`
+    border-b h-8
+    ${
+      share.change >= 0
+        ? "bg-gradient-to-r from-green-950/40 via-transparent to-transparent"
+        : "bg-gradient-to-r from-red-950/40 via-transparent to-transparent"
+    }
+    hover:bg-slate-800/40 transition
+  `}
+                    >
                       <td className="px-2 py-1 font-medium">{share.name}</td>
                       <td className="text-right px-2 py-1">
                         ₹{share.price.toFixed(2)}
@@ -498,7 +562,12 @@ const ParticipantDashboard = ({ user }) => {
                       </h4>
 
                       {index === 0 && (
-                        <Badge className="bg-red-500 text-white text-[10px] sm:text-xs">
+                        <Badge
+                          className="
+  bg-red-600 text-white text-[10px] sm:text-xs
+  animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.7)]
+"
+                        >
                           BREAKING
                         </Badge>
                       )}
@@ -539,19 +608,33 @@ const ParticipantDashboard = ({ user }) => {
                   </thead>
                   <tbody>
                     {leaderboard.map((p, index) => (
-                      <tr className="border-b hover:bg-slate-50 transition">
+                      <tr
+                        className={`
+    border-b transition
+    ${
+      index === 0
+        ? "bg-gradient-to-r from-yellow-900/40 to-transparent"
+        : index === 1
+          ? "bg-gradient-to-r from-slate-700/40 to-transparent"
+          : index === 2
+            ? "bg-gradient-to-r from-amber-900/40 to-transparent"
+            : "hover:bg-slate-800/40"
+    }
+  `}
+                      >
                         <td className="p-2">
                           <span
                             className={`w-7 h-7 inline-flex items-center justify-center rounded-full text-xs font-bold
-        ${
-          index === 0
-            ? "bg-yellow-100 text-yellow-700"
-            : index === 1
-              ? "bg-slate-200 text-slate-700"
-              : index === 2
-                ? "bg-amber-100 text-amber-700"
-                : "bg-slate-100 text-slate-600"
-        }`}
+  ${
+    index === 0
+      ? "bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.6)]"
+      : index === 1
+        ? "bg-slate-400 text-black"
+        : index === 2
+          ? "bg-amber-300 text-black"
+          : "bg-slate-700 text-slate-300"
+  }
+`}
                           >
                             {index + 1}
                           </span>

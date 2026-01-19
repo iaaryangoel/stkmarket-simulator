@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   password:      String,
   role:          String,
   participantId: String,
-  balance:       { type: Number, default: 10000 },
+  balance:       { type: Number, default: 1000000 },
   holdings: [
     { symbol: String, quantity: Number, avgPrice: Number }
   ],
