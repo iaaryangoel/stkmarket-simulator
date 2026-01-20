@@ -60,7 +60,7 @@ const ParticipantDashboard = ({ user }) => {
       setShares((prev) =>
         prev.some((s) => s._id === updatedShare._id)
           ? prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
-          : [...prev, updatedShare],
+          : [...prev, updatedShare]
       );
     });
 
@@ -126,7 +126,7 @@ const ParticipantDashboard = ({ user }) => {
       socket.off("share:delete");
       socket.off("share:add");
       socket.off("news:new");
-      socket.off("news:delete"); 
+      socket.off("news:delete");
       socket.off("market:status");
       socket.off("user:update"); // 👈 ADD THIS
     };
@@ -272,15 +272,21 @@ const ParticipantDashboard = ({ user }) => {
                       <th className="text-right p-2">Quantity</th>
                       <th className="text-right p-2">Avg Price</th>
                       <th className="text-right p-2">Current Price</th>
+                      <th className="text-right p-2">Total Invested</th>
+                      <th className="text-right p-2">Current Value</th>
                       <th className="text-right p-2">P&L</th>
                     </tr>
                   </thead>
                   <tbody>
                     {portfolio.holdings.map((holding, index) => {
                       const share = shares.find(
-                        (s) => s.name === holding.symbol,
+                        (s) => s.name === holding.symbol
                       );
                       const profitLoss = calculateProfitLoss(holding);
+                      const invested = holding.avgPrice * holding.quantity;
+                      const currentValue = share
+                        ? share.price * holding.quantity
+                        : 0;
                       return (
                         <tr
                           key={index}
@@ -294,6 +300,14 @@ const ParticipantDashboard = ({ user }) => {
                           <td className="text-right p-2">
                             ₹{share?.price?.toFixed(2) ?? "N/A"}
                           </td>
+                          <td className="text-right p-2 font-medium">
+                            ₹{invested.toFixed(2)}
+                          </td>
+
+                          <td className="text-right p-2 font-medium">
+                            ₹{currentValue.toFixed(2)}
+                          </td>
+
                           <td
                             className={`text-right p-2 ${
                               profitLoss >= 0
