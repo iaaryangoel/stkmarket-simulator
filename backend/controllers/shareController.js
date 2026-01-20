@@ -1,5 +1,6 @@
 /* ───────────── controllers/shareController.js ───────────── */
 const Share = require("../models/Share");
+const emitLeaderboard = require("../utils/emitLeaderboard");
 
 let ioInstance;
 
@@ -31,6 +32,7 @@ exports.createShare = async (req, res) => {
 
   const share = await Share.create({ name, price, change: 0 });
   emitShare("add", share.toObject());
+  await emitLeaderboard(ioInstance);
   res.status(201).json(share);
 };
 
@@ -49,6 +51,7 @@ exports.updateShares = async (req, res) => {
       })
     )
   );
+  await emitLeaderboard(ioInstance);
   res.json({ updated: result });
 };
 
@@ -57,7 +60,8 @@ exports.deleteShare = async (req, res) => {
   const deleted = await Share.findByIdAndDelete(req.params.id);
   if (!deleted) return res.status(404).json({ msg: "Share not found" });
 
-  emitShare("delete", req.params.id); // emit deletion event
+  emitShare("delete", req.params.id);
+  await emitLeaderboard(ioInstance);
   res.json({ msg: "Share deleted" });
 };
 
@@ -85,5 +89,6 @@ exports.bumpByPercent = async (req, res) => {
   await share.save();
 
   emitShare("update", share.toObject());
+  await emitLeaderboard(ioInstance);
   res.json(share);
 };

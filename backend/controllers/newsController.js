@@ -1,6 +1,7 @@
 /* ───────────── controllers/newsController.js ───────────── */
 const Share = require("../models/Share");
 const News = require("../models/News");
+const emitLeaderboard = require("../utils/emitLeaderboard");
 
 let ioInstance; // store socket instance
 
@@ -19,6 +20,7 @@ const stepMove = async (share, isPos) => {
 
   if (ioInstance) {
     ioInstance.emit("share:update", share.toObject());
+    await emitLeaderboard(ioInstance);
   }
 };
 
@@ -69,6 +71,7 @@ exports.createNews = async (req, res) => {
 
   if (ioInstance) {
     ioInstance.emit("news:new", news.toObject());
+    await emitLeaderboard(ioInstance);
   }
   res.status(201).json(news);
 };
@@ -86,8 +89,8 @@ exports.deleteNews = async (req, res) => {
   // 🔥 realtime delete broadcast
   if (ioInstance) {
     ioInstance.emit("news:delete", deleted._id);
+    await emitLeaderboard(ioInstance);
   }
 
   res.json({ success: true });
 };
-

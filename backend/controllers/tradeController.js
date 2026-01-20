@@ -1,6 +1,7 @@
 // controllers/tradeController.js
 const User = require("../models/User");
 const Share = require("../models/Share");
+const emitLeaderboard = require("../utils/emitLeaderboard");
 
 const addTrade = (user, record) => {
   user.trades.unshift(record);
@@ -51,8 +52,9 @@ exports.handleTrade = async (req, res) => {
           counterpart: "Market",
         });
         await user.save();
-        const io = req.app.get("io"); // 👈 fetch the socket instance
-        io.emit("user:update", [user]); // 👈 emit updated user
+        const io = req.app.get("io");
+        io.emit("user:update", [user]);
+        await emitLeaderboard(io);
         return res.json({ message: "Buy completed", updatedUsers: [user] });
       }
 
@@ -73,6 +75,9 @@ exports.handleTrade = async (req, res) => {
           counterpart: "Market",
         });
         await user.save();
+        const io = req.app.get("io");
+        io.emit("user:update", [user]);
+        await emitLeaderboard(io);
         return res.json({ message: "Sell completed", updatedUsers: [user] });
       }
 
@@ -128,6 +133,7 @@ exports.handleTrade = async (req, res) => {
       await Promise.all([buyer.save(), seller.save()]);
       const io = req.app.get("io");
       io.emit("user:update", [buyer, seller]);
+      await emitLeaderboard(io);
       return res.json({
         message: "P2P trade completed",
         updatedUsers: [buyer, seller],

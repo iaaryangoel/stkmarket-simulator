@@ -137,7 +137,7 @@ const AdminDashboard = ({ user }) => {
 
     socket.on("share:update", (updatedShare: Share) => {
       setShares((prev) =>
-        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s)),
+        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
       );
     });
 
@@ -155,6 +155,10 @@ const AdminDashboard = ({ user }) => {
       setNews((prev) => [news, ...prev]);
     });
 
+    socket.on("leaderboard:update", (data) => {
+      setLeaderboard(data);
+    });
+
     const handleClickOutside = (e: MouseEvent) => {
       if (
         dropdownRef.current &&
@@ -170,6 +174,7 @@ const AdminDashboard = ({ user }) => {
       socket.off("share:add");
       socket.off("news:new");
       socket.off("market:status");
+      socket.off("leaderboard:update");
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);

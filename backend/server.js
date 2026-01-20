@@ -1,16 +1,18 @@
 /* ───────────────────────────── server.js ───────────────────────────── */
-const express  = require('express');
-const http     = require('http');
-const { Server } = require('socket.io');
-const dotenv   = require('dotenv');
-const cors     = require('cors');
-const connectDB = require('./config/db');
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const connectDB = require("./config/db");
 
-const Share = require('./models/Share');
+const Share = require("./models/Share");
 
 /* Controllers that need io */
-const { setIO: setShareIO } = require('./controllers/shareController');
-const { setIO: setNewsIO }  = require('./controllers/newsController');
+const { setIO: setShareIO } = require("./controllers/shareController");
+const { setIO: setNewsIO } = require("./controllers/newsController");
+
+const emitLeaderboard = require("./utils/emitLeaderboard");
 
 dotenv.config();
 connectDB();
@@ -27,23 +29,23 @@ app.use(
 app.use(express.json());
 
 /* ----------- ROUTES ----------- */
-app.use('/api/users',  require('./routes/userRoutes'));
-app.use('/api/shares', require('./routes/shareRoutes'));
-app.use('/api/news',   require('./routes/newsRoutes'));
-app.use('/api/trade',  require('./routes/tradeRoutes'));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/shares", require("./routes/shareRoutes"));
+app.use("/api/news", require("./routes/newsRoutes"));
+app.use("/api/trade", require("./routes/tradeRoutes"));
 app.use("/api/market", require("./routes/marketRoutes"));
 
-app.get('/', (_, res) => res.send('API is running...'));
+app.get("/", (_, res) => res.send("API is running..."));
 
 /* ----------- SOCKET.IO ----------- */
 const server = http.createServer(app);
-const io     = new Server(server, {
-  cors: { origin: process.env.CLIENT_URL, methods: ['GET','POST','DELETE'] }
+const io = new Server(server, {
+  cors: { origin: process.env.CLIENT_URL, methods: ["GET", "POST", "DELETE"] },
 });
 
-app.set('io', io);              // ✅ make io available via req.app.get('io')
-setShareIO(io);                 // ShareController socket setup
-setNewsIO(io);                  // NewsController socket setup
+app.set("io", io); // ✅ make io available via req.app.get('io')
+setShareIO(io); // ShareController socket setup
+setNewsIO(io); // NewsController socket setup
 
 /* ----------- AUTO MARKET FLUCTUATION ENGINE ----------- */
 
@@ -71,16 +73,16 @@ setInterval(async () => {
       await share.save();
 
       // 🔴 Emit real-time update to ALL dashboards
-      io.emit('share:update', share.toObject());
+      io.emit("share:update", share.toObject());
     }
+    await emitLeaderboard(io);
   } catch (err) {
-    console.error('Auto fluctuation error:', err.message);
+    console.error("Auto fluctuation error:", err.message);
   }
 }, AUTO_FLUCTUATION_INTERVAL);
 
-
-io.on('connection', (socket) => {
-  console.log('⚡ client connected:', socket.id);
+io.on("connection", (socket) => {
+  console.log("⚡ client connected:", socket.id);
 });
 
 const PORT = process.env.PORT || 8080;

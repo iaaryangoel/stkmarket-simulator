@@ -119,6 +119,10 @@ const ParticipantDashboard = ({ user }) => {
       setNews((prev) => [news, ...prev]);
     });
 
+    socket.on("leaderboard:update", (data) => {
+      setLeaderboard(Array.isArray(data) ? data : []);
+    });
+
     axiosInstance.get("/shares").then((res) => setShares(res.data));
 
     return () => {
@@ -128,7 +132,8 @@ const ParticipantDashboard = ({ user }) => {
       socket.off("news:new");
       socket.off("news:delete");
       socket.off("market:status");
-      socket.off("user:update"); // 👈 ADD THIS
+      socket.off("user:update");
+      socket.off("leaderboard:update");
     };
   }, [user]);
 

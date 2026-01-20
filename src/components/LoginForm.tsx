@@ -83,21 +83,25 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
       setShares((prev) =>
         prev.some((s) => s._id === upd._id)
           ? prev.map((s) => (s._id === upd._id ? upd : s))
-          : [...prev, upd],
-      ),
+          : [...prev, upd]
+      )
     );
     socket.on("share:delete", (id: string) =>
-      setShares((prev) => prev.filter((s) => s._id !== id)),
+      setShares((prev) => prev.filter((s) => s._id !== id))
     );
     socket.on(
       "news:new",
-      (n: NewsItem) => setNews((prev) => [n, ...prev]), // newest on top
+      (n: NewsItem) => setNews((prev) => [n, ...prev]) // newest on top
     );
+    socket.on("leaderboard:update", (data: LeaderboardEntry[]) => {
+      setLeaderboard(Array.isArray(data) ? data : []);
+    });
 
     return () => {
       socket.off("share:update");
       socket.off("share:delete");
       socket.off("news:new");
+      socket.off("leaderboard:update");
     };
   }, []);
 
