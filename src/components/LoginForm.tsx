@@ -324,7 +324,7 @@ const LoginForm = ({ onLogin }: { onLogin: (u: AuthUser) => void }) => {
               </tr>
             )}
 
-            {leaderboard.slice(0, 10).map((p, i) => (
+            {leaderboard.slice(0, 15).map((p, i) => (
               <tr
                 key={p.participantId}
                 className={`

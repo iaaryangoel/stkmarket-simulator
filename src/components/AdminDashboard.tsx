@@ -137,7 +137,7 @@ const AdminDashboard = ({ user }) => {
 
     socket.on("share:update", (updatedShare: Share) => {
       setShares((prev) =>
-        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s))
+        prev.map((s) => (s._id === updatedShare._id ? updatedShare : s)),
       );
     });
 
@@ -237,6 +237,27 @@ const AdminDashboard = ({ user }) => {
     fetchNews();
     fetchLeaderboard();
   };
+
+  const applyPenalty = async (participantId: string) => {
+  if (!confirm("Apply ₹1,00,000 penalty to this participant?")) return;
+
+  try {
+    await axiosInstance.post(`/users/penalty/${participantId}`);
+
+    toast({
+      title: "Penalty Applied",
+      description: "₹1,00,000 deducted",
+      variant: "destructive",
+    });
+
+    // ❌ no fetchLeaderboard here
+  } catch {
+    toast({
+      title: "Penalty Failed",
+      variant: "destructive",
+    });
+  }
+};
 
   return (
     <motion.div
@@ -488,7 +509,7 @@ const AdminDashboard = ({ user }) => {
         <Card className="rounded-2xl border bg-white shadow-sm">
           <CardHeader className="border-b bg-slate-50">
             <CardTitle className="flex items-center gap-2 text-lg">
-              🏆 Live Leaderboard (Top 5)
+              🏆 Live Leaderboard (Top 15)
             </CardTitle>
           </CardHeader>
 
@@ -512,6 +533,9 @@ const AdminDashboard = ({ user }) => {
                       </th>
                       <th className="px-5 py-3 text-right font-medium">
                         Net Worth
+                      </th>
+                      <th className="px-5 py-3 text-left font-medium">
+                        Action
                       </th>
                     </motion.tr>
                   </thead>
@@ -542,19 +566,38 @@ const AdminDashboard = ({ user }) => {
 
                         {/* Participant */}
                         <td className="px-5 py-4">
-                          <div className="font-medium text-slate-800 truncate max-w-[220px]">
+                          <div className="font-medium text-slate-800 truncate max-w-[180px] sm:max-w-[220px]">
                             {p.name}
                           </div>
-                          <div className="text-xs text-slate-500">
+
+                          <div className="text-xs text-slate-500 hidden sm:block">
                             ID: {p.participantId}
                           </div>
                         </td>
 
                         {/* Net Worth */}
-                        <td className="px-5 py-4 text-right">
-                          <div className="font-semibold text-slate-800">
+                        <td className="px-5 py-4 text-right whitespace-nowrap">
+                          <div className="font-semibold text-slate-800 text-xs sm:text-sm">
                             ₹{p.totalNetWorth.toLocaleString()}
                           </div>
+                        </td>
+
+                        <td className="px-5 py-4">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="
+      rounded-full
+      px-4 sm:px-5
+      w-full sm:w-auto
+      shadow-md
+      hover:scale-105
+      transition
+    "
+                            onClick={() => applyPenalty(p.participantId)}
+                          >
+                            Penalty
+                          </Button>
                         </td>
                       </tr>
                     ))}

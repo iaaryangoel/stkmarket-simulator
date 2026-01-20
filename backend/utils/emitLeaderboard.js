@@ -26,7 +26,7 @@ module.exports = async function emitLeaderboard(io) {
         };
       })
       .sort((a, b) => b.totalNetWorth - a.totalNetWorth)
-      .slice(0, 5);
+      .slice(0, 15);
 
     io.emit("leaderboard:update", leaderboard);
   } catch (err) {
