@@ -610,7 +610,7 @@ const ParticipantDashboard = ({ user }) => {
       >
         <Card>
           <CardHeader>
-            <CardTitle>🏆 Live Leaderboard (Top 5 Participants)</CardTitle>
+            <CardTitle>🏆 Live Leaderboard (Top 15 Participants)</CardTitle>
           </CardHeader>
           <CardContent>
             {leaderboard.length === 0 ? (

@@ -8,7 +8,7 @@ router.get('/leaderboard', userController.getLeaderboard);
 router.get('/', userController.getAllUsers);
 router.put('/', userController.updateUsers);
 router.get('/:id', userController.getUserById);
-
+router.post('/penalty/:participantId', userController.applyPenalty);
 
 module.exports = router;
 
