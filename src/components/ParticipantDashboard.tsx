@@ -1,5 +1,5 @@
 // ParticipantDashboard.tsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState,useMemo } from "react";
 import axiosInstance from "@/lib/axiosInstance";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -146,13 +146,15 @@ const ParticipantDashboard = ({ user }) => {
     }
   };
 
-  const calculatePortfolioValue = () => {
-    const holdingsValue = portfolio.holdings.reduce((total, holding) => {
-      const share = shares.find((s) => s.name === holding.symbol);
-      return total + (share ? share.price * holding.quantity : 0);
-    }, 0);
-    return portfolio.balance + holdingsValue;
-  };
+  const portfolioValue = useMemo(() => {
+  const holdingsValue = portfolio.holdings.reduce((total, holding) => {
+    const share = shares.find((s) => s.name === holding.symbol);
+    return total + (share ? share.price * holding.quantity : 0);
+  }, 0);
+
+  return portfolio.balance + holdingsValue;
+}, [portfolio.balance, portfolio.holdings, shares]);
+
 
   const calculateProfitLoss = (holding) => {
     const share = shares.find((s) => s.name === holding.symbol);
@@ -222,7 +224,7 @@ const ParticipantDashboard = ({ user }) => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ₹{calculatePortfolioValue().toLocaleString()}
+                ₹{portfolioValue.toLocaleString()}
               </div>
             </CardContent>
           </Card>
