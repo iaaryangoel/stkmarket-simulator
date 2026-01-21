@@ -5,6 +5,8 @@ const emitLeaderboard = require("../utils/emitLeaderboard");
 
 exports.getLeaderboard = async (req, res) => {
   try {
+    const io = req.app.get("io");
+
     const shares = await Share.find();
     const users = await User.find({ role: "participant" });
 
@@ -14,26 +16,25 @@ exports.getLeaderboard = async (req, res) => {
         return sum + (share ? share.price * holding.quantity : 0);
       }, 0);
 
-      const totalNetWorth = user.balance + holdingsValue;
-
       return {
         name: user.name,
         participantId: user.participantId,
-        totalNetWorth: +totalNetWorth.toFixed(2),
+        totalNetWorth: +(user.balance + holdingsValue).toFixed(2),
       };
     });
 
     const sorted = leaderboard.sort(
-      (a, b) => b.totalNetWorth - a.totalNetWorth,
+      (a, b) => b.totalNetWorth - a.totalNetWorth
     );
 
     io.emit("leaderboard:update", sorted.slice(0, 15));
-
     res.json(sorted);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to get leaderboard" });
   }
 };
+
 
 exports.registerUser = async (req, res) => {
   const { name, email, password, role, secretKey } = req.body;
