@@ -34,6 +34,11 @@ app.use("/api/shares", require("./routes/shareRoutes"));
 app.use("/api/news", require("./routes/newsRoutes"));
 app.use("/api/trade", require("./routes/tradeRoutes"));
 app.use("/api/market", require("./routes/marketRoutes"));
+// ✅ ADMIN ANALYTICS
+app.use(
+  "/api/admin/analytics",
+  require("./routes/adminAnalyticsRoutes")
+);
 
 app.get("/", (_, res) => res.send("API is running..."));
 

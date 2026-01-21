@@ -18,6 +18,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import MostTradedPortfolio from "./MostTradedPortfolio";
+import MostDiversifiedPortfolio from "./MostDiversifiedPortfolio";
 
 interface Share {
   _id: string;
@@ -239,25 +241,25 @@ const AdminDashboard = ({ user }) => {
   };
 
   const applyPenalty = async (participantId: string) => {
-  if (!confirm("Apply ₹1,00,000 penalty to this participant?")) return;
+    if (!confirm("Apply ₹1,00,000 penalty to this participant?")) return;
 
-  try {
-    await axiosInstance.post(`/users/penalty/${participantId}`);
+    try {
+      await axiosInstance.post(`/users/penalty/${participantId}`);
 
-    toast({
-      title: "Penalty Applied",
-      description: "₹1,00,000 deducted",
-      variant: "destructive",
-    });
+      toast({
+        title: "Penalty Applied",
+        description: "₹1,00,000 deducted",
+        variant: "destructive",
+      });
 
-    // ❌ no fetchLeaderboard here
-  } catch {
-    toast({
-      title: "Penalty Failed",
-      variant: "destructive",
-    });
-  }
-};
+      // ❌ no fetchLeaderboard here
+    } catch {
+      toast({
+        title: "Penalty Failed",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <motion.div
@@ -605,6 +607,34 @@ const AdminDashboard = ({ user }) => {
                 </table>
               </div>
             )}
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        variants={item}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* ───────── Most Traded Portfolio ───────── */}
+        <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition">
+          <CardContent className="p-0">
+            <MostTradedPortfolio />
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      <motion.div
+        variants={item}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* ───────── Most Diversified Portfolio ───────── */}
+        <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition">
+          <CardContent className="p-0">
+            <MostDiversifiedPortfolio />
           </CardContent>
         </Card>
       </motion.div>
