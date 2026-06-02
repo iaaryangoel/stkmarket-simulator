@@ -106,7 +106,7 @@ Backend:
 👨‍💻 Author
 ------------
 **Aaryan Goel**
-B.Tech CSE | Full-Stack Developer
+Software Engineer
 
 -----------------------------------------------------------------------------------------------------
 IMP : **This Project was delivered to an actual client and was made client requirement specific.**
