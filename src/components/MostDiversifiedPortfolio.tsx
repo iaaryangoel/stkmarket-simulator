@@ -2,8 +2,17 @@ import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import {
+  TrendingDown,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  Shield,
+  Target,
+} from "lucide-react";
 import axiosInstance from "@/lib/axiosInstance";
 import { motion } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 // ---------------- TYPES ----------------
 
@@ -19,107 +28,226 @@ type DiversifiedParticipant = {
 
 const MostDiversifiedPortfolio = () => {
   const [data, setData] = useState<DiversifiedParticipant[]>([]);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
-    axiosInstance
-      .get("/admin/analytics/most-diversified")
-      .then((res) => {
-        const sorted = [...(res.data || [])].sort((a, b) => {
-          // 🔥 Rank Logic
-          // 1. More unique shares
-          // 2. Lower max concentration
-          // 3. Higher total value
-          if (b.uniqueShares !== a.uniqueShares)
-            return b.uniqueShares - a.uniqueShares;
-
-          if (a.maxConcentration !== b.maxConcentration)
-            return a.maxConcentration - b.maxConcentration;
-
+    axiosInstance.get("/admin/analytics/most-diversified").then((res) => {
+      const sorted = [...(res.data || [])].sort((a, b) => {
+        // 1️⃣ More unique stocks
+        if (b.uniqueShares !== a.uniqueShares) {
+          return b.uniqueShares - a.uniqueShares;
+        }
+        // 2️⃣ Lower max concentration (better spread)
+        if (a.maxConcentration !== b.maxConcentration) {
+          return a.maxConcentration - b.maxConcentration;
+        }
+        // 3️⃣ Higher total portfolio value
+        if (b.totalValue !== a.totalValue) {
           return b.totalValue - a.totalValue;
-        });
-
-        setData(sorted);
+        }
+        // 4️⃣ Final fallback (stable order)
+        return a.participantId.localeCompare(b.participantId);
       });
+      setData(sorted);
+    });
   }, []);
 
+  const getConcentrationColor = (percentage: number) => {
+    if (percentage < 30) return "text-green-400";
+    if (percentage < 50) return "text-yellow-400";
+    if (percentage < 70) return "text-orange-400";
+    return "text-red-400";
+  };
+
+  const getConcentrationLabel = (percentage: number) => {
+    if (percentage < 30) return "Well Diversified";
+    if (percentage < 50) return "Moderate";
+    if (percentage < 70) return "Concentrated";
+    return "Highly Concentrated";
+  };
+
   return (
-    <Card className="rounded-2xl border bg-white shadow-sm">
-      <CardHeader className="border-b bg-slate-50">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          🌐 Most Diversified Portfolios
-        </CardTitle>
+    <Card
+      className={`rounded-2xl border transition-all duration-300 ${
+        isDark
+          ? "bg-[#02060E]/80 backdrop-blur-sm border-[#9303C5]/30 shadow-xl"
+          : "hover:shadow-lg transition-shadow duration-300"
+      }`}
+    >
+      <CardHeader className="border-b">
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-2 rounded-xl ${isDark ? "bg-[#9303C5]/20" : "bg-purple-100"}`}
+          >
+            <PieChart
+              className={`h-5 w-5 ${isDark ? "text-purple-400" : "text-purple-600"}`}
+            />
+          </div>
+          <CardTitle
+            className={`text-xl font-bold ${isDark ? "text-white" : "text-gray-800"}`}
+          >
+            Most Diversified Portfolios
+          </CardTitle>
+          {isDark && (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-[#9303C5]/20 text-[#d8b4fe]">
+              Diversification Score
+            </span>
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="p-0">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full">
             <thead>
-              <tr className="border-b bg-muted/40 text-muted-foreground">
-                <th className="p-3 text-left">Rank</th>
-                <th className="p-3 text-left">Participant</th>
-                <th className="p-3 text-right">Stocks</th>
-                <th className="p-3 text-left">Max Exposure</th>
-                <th className="p-3 text-right">Portfolio Value</th>
+              <tr
+                className={`border-b ${
+                  isDark ? "border-[#9303C5]/30 bg-[#2a0140]/30" : "bg-gray-50"
+                }`}
+              >
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Rank
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Participant
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold">
+                  Stocks
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">
+                  Max Exposure
+                </th>
+                <th className="px-4 py-3 text-right text-sm font-semibold">
+                  Portfolio Value
+                </th>
               </tr>
             </thead>
 
             <tbody>
-              {data.map((p, i) => (
-                <motion.tr
-                  key={p.participantId}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="border-b hover:bg-muted/30 transition"
-                >
-                  {/* Rank */}
-                  <td className="p-3 font-semibold">
-                    {i === 0 && "🥇"}
-                    {i === 1 && "🥈"}
-                    {i === 2 && "🥉"}
-                    {i > 2 && i + 1}
-                  </td>
+              {data.map((p, i) => {
+                const concentrationPercent = p.maxConcentration * 100;
+                const concentrationColor =
+                  getConcentrationColor(concentrationPercent);
+                const concentrationLabel =
+                  getConcentrationLabel(concentrationPercent);
 
-                  {/* Participant */}
-                  <td className="p-3">
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {p.participantId}
-                    </div>
-                  </td>
+                return (
+                  <motion.tr
+                    key={p.participantId}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className={`border-b transition-all duration-300 ${
+                      isDark
+                        ? "border-[#9303C5]/20 hover:bg-[#2a0140]/30"
+                        : "hover:bg-gray-50"
+                    }`}
+                  >
+                    {/* Rank */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {i === 0 && <span className="text-2xl">👑</span>}
+                        {i === 1 && <span className="text-2xl">🥈</span>}
+                        {i === 2 && <span className="text-2xl">🥉</span>}
+                        {i > 2 && (
+                          <span
+                            className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold ${
+                              isDark
+                                ? "bg-[#2a0140] text-gray-300"
+                                : "bg-gray-200 text-gray-600"
+                            }`}
+                          >
+                            {i + 1}
+                          </span>
+                        )}
+                      </div>
+                    </td>
 
-                  {/* Unique Stocks */}
-                  <td className="p-3 text-right">
-                    <Badge variant="secondary">{p.uniqueShares}</Badge>
-                  </td>
+                    {/* Participant */}
+                    <td className="px-4 py-3">
+                      <div
+                        className={`font-semibold ${isDark ? "text-white" : "text-gray-800"}`}
+                      >
+                        {p.name}
+                      </div>
+                      <div
+                        className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                      >
+                        {p.participantId}
+                      </div>
+                    </td>
 
-                  {/* Max Exposure */}
-                  <td className="p-3">
-                    <div className="flex items-center gap-2">
-                      <Progress
-                        value={p.maxConcentration * 100}
-                        className="h-2"
-                      />
-                      <span className="text-xs font-medium">
-                        {(p.maxConcentration * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                  </td>
+                    {/* Unique Stocks */}
+                    <td className="px-4 py-3 text-center">
+                      <Badge
+                        className={`rounded-full px-3 py-1 ${
+                          isDark
+                            ? "bg-[#9303C5]/20 text-[#d8b4fe] border border-[#9303C5]/30"
+                            : "bg-purple-100 text-purple-700"
+                        }`}
+                      >
+                        {p.uniqueShares} Stocks
+                      </Badge>
+                    </td>
 
-                  {/* Total Value */}
-                  <td className="p-3 text-right font-medium">
-                    ₹{p.totalValue.toLocaleString()}
-                  </td>
-                </motion.tr>
-              ))}
+                    {/* Max Exposure */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <Progress
+                          value={concentrationPercent}
+                          className={`h-2 flex-1 ${
+                            isDark ? "bg-[#2a0140]" : "bg-gray-200"
+                          }`}
+                        />
+                        <div className="min-w-[70px]">
+                          <span
+                            className={`text-xs font-bold ${concentrationColor}`}
+                          >
+                            {concentrationPercent.toFixed(1)}%
+                          </span>
+                          <span
+                            className={`text-[10px] ml-1 ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                          >
+                            {concentrationLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Total Value */}
+                    <td className="px-4 py-3 text-right">
+                      <div
+                        className={`font-bold text-lg ${isDark ? "text-[#d8b4fe]" : "text-purple-700"}`}
+                      >
+                        ₹{p.totalValue.toLocaleString()}
+                      </div>
+                      <div
+                        className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+                      >
+                        Total Value
+                      </div>
+                    </td>
+                  </motion.tr>
+                );
+              })}
 
               {!data.length && (
                 <tr>
                   <td
                     colSpan={5}
-                    className="p-6 text-center text-muted-foreground"
+                    className={`p-12 text-center ${isDark ? "text-gray-400" : "text-gray-500"}`}
                   >
-                    No diversification data available
+                    <div className="flex flex-col items-center gap-3">
+                      <Shield className="h-12 w-12 opacity-30" />
+                      <p className="font-medium">
+                        No diversification data available
+                      </p>
+                      <p className="text-sm">
+                        Portfolio data will appear once participants start
+                        trading
+                      </p>
+                    </div>
                   </td>
                 </tr>
               )}
