@@ -19,10 +19,27 @@ connectDB();
 
 const app = express();
 
+// ✅ FIX: Handle multiple allowed origins
+const allowedOrigins = process.env.CLIENT_URL 
+  ? process.env.CLIENT_URL.split(',').map(origin => origin.trim())
+  : ['http://localhost:3000', 'http://localhost:5173'];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.log('Blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -44,8 +61,15 @@ app.get("/", (_, res) => res.send("API is running..."));
 
 /* ----------- SOCKET.IO ----------- */
 const server = http.createServer(app);
+
+// ✅ FIX: Socket.io with multiple allowed origins
 const io = new Server(server, {
-  cors: { origin: process.env.CLIENT_URL, methods: ["GET", "POST", "DELETE"] },
+  cors: { 
+    origin: allowedOrigins,  // Now accepts array of origins
+    methods: ["GET", "POST", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type"]
+  },
 });
 
 app.set("io", io); // ✅ make io available via req.app.get('io')
